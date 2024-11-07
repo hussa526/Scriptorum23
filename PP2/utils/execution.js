@@ -19,7 +19,7 @@ export async function codeExecution(language, code, stdin) {
     const extension = language === 'javascript' ? '.js' :
                       language === 'python' ? '.py' :
                       language === 'c' ? '.c' :
-                      language === 'cpp' ? '.cpp' : 
+                      language === 'c++' ? '.cpp' : 
                       language === 'java' ? '.java' :
                       null;
 
@@ -51,7 +51,7 @@ export async function codeExecution(language, code, stdin) {
             compile = `gcc -Werror -Wall -Wextra ${sourceFile} -o ${compiledFile}`;
             command = `./${compiledFile}`;
             break;
-        case 'cpp':
+        case 'c++':
             compile = `g++ ${sourceFile} -o ${compiledFile}`
             command = `./${compiledFile}`;
             break;
@@ -67,26 +67,29 @@ export async function codeExecution(language, code, stdin) {
         command += ` < ${inputFile}`;
     }
     
-    const output = {}
+    const output = { stderr: [], stdout: null};
+
     if (compile) {
         try {
-            const { stderrWarn } = await execPromise(compile);
+            const { stderrWarnings } = await execPromise(compile);
 
-            if (stderrWarn) {
+            if (stderrWarnings) {
                 // compiler warnings
-                if (language === 'c' || language === 'cpp' || language === 'java') {
+                if (language === 'c' || language === 'c++' || language === 'java') {
                     fs.unlinkSync(`${sourceFile}`);
                 }
-                console.log(`Compiler (warning) error: ${stderrWarn}`);
-                output["stderrWarn"] = stderrWarn;
+                // console.log(`Compiler (warning) error: ${stderrWarnings}`);
+                output["stderr"].push(stderrWarnings);
             }
         } catch (error) {
             // compiler errors
-            if (language === 'c' || language === 'cpp' || language === 'java') {
+            if (language === 'c' || language === 'c++' || language === 'java') {
                 fs.unlinkSync(`${sourceFile}`);
             }
 
-            return { stderr: error.message };
+            output["stderr"].push(error.message);
+
+            return output;
         }
     }
 
@@ -96,32 +99,28 @@ export async function codeExecution(language, code, stdin) {
         // Clean up temporary files
         fs.unlinkSync(`${sourceFile}`);
         if (stdin) fs.unlinkSync(inputFile);
-        if (language === 'c' || language === 'cpp') {
+        if (language === 'c' || language === 'c++') {
             fs.unlinkSync(compiledFile);
         } else if (language === 'java') {
             fs.unlinkSync(`${compiledFile}.class`);
         }
 
-        if (stderr) {
-            // never reach here?
-            // console.log(`Runtime error ??: ${stderr}`);
-            return { stderr: stderr };
-        }
-
-        // Return stdout or stderr as the result
-        output["stdout"] = stdout;
+        output["stdout"] = stdout || null;
+        if (stderr) output["stderr"].push(stderr);
+        
         return output;
     } catch (error) {
         // Clean up even if there's an error
         fs.unlinkSync(`${sourceFile}`);
         if (stdin) fs.unlinkSync(inputFile);
-        if (language === 'c' || language === 'cpp') {
+        if (language === 'c' || language === 'c++') {
             fs.unlinkSync(compiledFile);
         } else if (language === 'java') {
             fs.unlinkSync(`${compiledFile}.class`);
         }
 
         // console.log(`Runtime error: ${error.message}`);
-        return { stderr: error.message };
+        output["stderr"].push(error.message);
+        return { stderr: error.message, stdout: null };
     }
 }

@@ -8,6 +8,10 @@ async function test() {
     let pythonResult = await codeExecution('python', pythonCode);
     console.log('Python Result:', pythonResult);
 
+    pythonCode = `print("Hello from Python!")\nprint(1/0)`;
+    pythonResult = await codeExecution('python', pythonCode);
+    console.log('Python Result:', pythonResult);
+
     // const pythonCode = `print("Hello from Python!"`;
     pythonCode = `def divide_by_zero():\n    return 1 / 0\ndivide_by_zero()`;
     pythonResult = await codeExecution('python', pythonCode);
@@ -29,13 +33,13 @@ async function test() {
     console.log('C Result:', cResult);
 
     // Test C Code
-    cCode = `#include <stdio.h>\n\nint unused_function() {\n    return 42;\n}\n\nint main() {\nint x;\n    printf("Hello, world!\\n");\n    return 0;\n}`;
+    cCode = `#include <stdio.h>\n\nint unused_function() {\n    return 42;\n}\n\nint main() {\n    printf("Hello, world!\\n");\n    return 0;\n}`;
     cResult = await codeExecution('c', cCode);
     console.log('C Result:', cResult);
 
     // Test C++ Code
     let cppCode = `#include <iostream>\nint main() { std::cout << "Hello from C++!" << std::endl; return 0; }`;
-    let cppResult = await codeExecution('cpp', cppCode);
+    let cppResult = await codeExecution('c++', cppCode);
     console.log('C++ Result:', cppResult);
 
     // Test Java Code

@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-import prisma from "@/utils/prismaclient";
+import prisma from "./prismaclient.js";
 
 const BCRYPT_SALT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS);
 const JWT_SECRET = process.env.JWT_SECRET;
