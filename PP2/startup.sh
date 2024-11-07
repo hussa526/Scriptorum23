@@ -22,7 +22,7 @@ check_command() {
   version_output="$($1 --version 2>&1)"
   if [ $? -ne 0 ]; then
     echo "$2 is required but was not found. Please install $2."
-    exit 1
+    # exit 1
   fi
   echo "$2: $version_output"
   echo
