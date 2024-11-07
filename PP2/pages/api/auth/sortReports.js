@@ -7,6 +7,9 @@ export default async function handler (req, res) {
 
     const authHeader = req.headers.authorization;
 
+    const page = parseInt(req.query.page) || 1; // Default to page 1
+    const limit = parseInt(req.query.limit) || 10; // Default to limit 10
+    
     try {
         // authenticate user
         const result = await authUser(authHeader);
@@ -40,9 +43,27 @@ export default async function handler (req, res) {
                 _count: 'desc',  // Sort by the number of reports in descending order
               },
             },
-        });          
+        });
+
+        // Combine blogposts and comments, adding report count for sorting
+        const combined = [
+            ...blogposts.map(post => ({ ...post, type: 'blogpost', reportCount: post.reports.length })),
+            ...comments.map(comment => ({ ...comment, type: 'comment', reportCount: comment.reports.length }))
+        ];
+
+        // Sort combined items by report count in descending order
+        combined.sort((a, b) => b.reportCount - a.reportCount);
+
+        // Apply pagination
+        const paginatedResults = combined.slice((page - 1) * limit, page * limit);
         
-        return res.status(200).json({ blogposts, comments });
+        return res.status(200).json({
+            page,
+            limit,
+            totalItems: combined.length,
+            totalPages: Math.ceil(combined.length / limit),
+            data: paginatedResults,
+        });
     } catch (error) {
         console.log(error.message);
         return res.status(500).json({ error: "Error obtaining reports." });
