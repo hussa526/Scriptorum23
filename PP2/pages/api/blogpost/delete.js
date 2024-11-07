@@ -1,6 +1,6 @@
-import prisma from "@utils/prismaclient"
+import prisma from "@/utils/prismaclient"
 
-import { authUser } from "@utils/auth";
+import { authUser } from "@/utils/auth";
 
 export default async function handler(req, res) {
     if (req.method !== "DELETE") {

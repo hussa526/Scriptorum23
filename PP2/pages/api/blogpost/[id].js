@@ -1,4 +1,4 @@
-import prisma from "@utils/prismaclient"
+import prisma from "@/utils/prismaclient"
 
 export default async function handler(req, res) {
     if (req.method !== "GET") {

@@ -1,4 +1,4 @@
-import prisma from "@utils/prismaclient";
+import prisma from "@/utils/prismaclient";
 
 export default async function handler(req, res) {
     if (req.method !== "GET") {
@@ -83,6 +83,10 @@ export default async function handler(req, res) {
             where: filter,
             skip: (page - 1) * limit,
             take: limit,
+            include: {
+                templates: true,
+                tags: true,
+            }
         });
 
         // Get the total count of blogposts that match the filter

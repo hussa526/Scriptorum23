@@ -9,7 +9,7 @@ export default async function handler (req, res) {
 
     const {firstName, lastName, username, password, email, avatar, phone} = req.body; //all required fields
 
-    if (!firstName || !lastName || !username || !password || !email || !avatar || !role) {
+    if (!firstName || !lastName || !username || !password || !email || !avatar) {
         //if required fields not filled out, return error
         return res.status(400).json({ error: "Required Fields empty." });
     }
@@ -34,7 +34,7 @@ export default async function handler (req, res) {
                 email,
                 avatar, 
                 phone,
-                role: "user"
+                role: "user",
             },
             select: { //what can be actively displayed 
                 username: true,

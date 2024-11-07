@@ -1,8 +1,8 @@
-import prisma from "@utils/prismaclient"
+import prisma from "@/utils/prismaclient"
 
-import { authUser } from "@utils/auth";
-import { validateTags } from "@utils/template";
-import { validateTemplates } from "@utils/template";
+import { authUser } from "@/utils/auth";
+import { validateTags } from "@/utils/template";
+import { validateTemplates } from "@/utils/template";
 
 export default async function handler(req, res) {
     if (req.method !== "PUT") {
