@@ -1,6 +1,6 @@
 import prisma from "@utils/prismaclient"
 
-import { authUser } from "@utils/template";
+import { authUser } from "@utils/auth";
 
 export default async function handler(req, res) {
     if (req.method !== "PUT") {        
@@ -22,6 +22,10 @@ export default async function handler(req, res) {
 
     if (typeof(blogpostId) !== "number") {
         return res.status(400).json({ error: "Id must be a number." });
+    }
+
+    if (typeof type !== "string") {
+        return res.status(400).json({ error: "Type must be a string." });
     }
 
     if (!blogpostId) {
