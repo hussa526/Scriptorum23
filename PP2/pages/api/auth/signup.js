@@ -1,38 +1,53 @@
-import prisma from "../../../utils/prismaclient";
-import { hashPassword } from "../../../utils/auth";
-export default async function handler (req, res)
-{
-    if (req.method !== 'POST')
-        return res.status(405).json({message: "need to use POST method"});
+import prisma from "@/utils/prismaclient";
 
-    const {firstName, lastName, username, password, email, avatar, phoneNumber, role} = req.body; //all required fields
+import { hashPassword } from "@/utils/auth";
 
-    if (!firstName || !lastName || !username || !password || !email || !avatar || !role) //if required fields not filled out, return error
-        return res.status(400).json({message: "required fields not filled out"});
+export default async function handler (req, res) {
+    if (req.method !== "POST") {
+        return res.status(405).json({ error: "Method not allowed." });
+    }
 
-    if (role !== 'user' && role !== 'administrator')
-        return res.status(400).json({message: "role can only be user or administrator"}) //roles can only be user or admin
+    const {firstName, lastName, username, password, email, avatar, phone} = req.body; //all required fields
 
-    const user = await prisma.user.create({ //what we are putting in the database 
-        data: { 
-            firstName,
-            lastName,
-            username,
-            password: await hashPassword(password), 
-            email,
-            avatar, 
-            phoneNumber,
-            role
-        },
-        select: { //what can be actively displayed 
-            username: true,
-            email: true,
-            firstName: true,
-            lastName: true,
-            role: true
-          },
-    });
-    res.status(200).json(user);
+    if (!firstName || !lastName || !username || !password || !email || !avatar || !role) {
+        //if required fields not filled out, return error
+        return res.status(400).json({ error: "Required Fields empty." });
+    }
+
+    // username must be unique
+
+    try {
+        const userExists = await prisma.user.findUnique({
+            where: { username }
+        });
+    
+        if (userExists) {
+            return res.status(400).json({ error: "Username already exists." });
+        }
+    
+        const user = await prisma.user.create({ //what we are putting in the database 
+            data: { 
+                firstName,
+                lastName,
+                username,
+                password: await hashPassword(password), 
+                email,
+                avatar, 
+                phone,
+                role: "user"
+            },
+            select: { //what can be actively displayed 
+                username: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                role: true
+              },
+        });
+    
+        return res.status(200).json(user);
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({ error: "Error signing up user." });
+    }
 } 
-
-
