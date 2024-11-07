@@ -41,11 +41,12 @@ check_command gcc "GCC (C compiler)"
 check_command g++ "G++ (C++ compiler)"
 
 # Check for Java installation
-check_command java "Java"
+check_command java "Java Runtime Environment"
+check_command javac "Java Compiler"
 
 # Create admin user
 echo "-> Creating admin user..."
-node ./create_admin.js
+node ./utils/create_admin.js
 echo
 
 echo "-> Startup script completed."
