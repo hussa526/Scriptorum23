@@ -46,7 +46,7 @@ check_command javac "Java Compiler"
 
 # Create admin user
 echo "-> Creating admin user..."
-node ./utils/create_admin.js
+node ./utils/createAdmin.js
 echo
 
 echo "-> Startup script completed."
