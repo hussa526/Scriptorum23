@@ -56,12 +56,12 @@ export default async function handler(req, res) {
         }
 
         // validate tags that are added and tags that are removed
-        const invalidTagIds = validateTags(tagsAdded);
+        const invalidTagIds = await validateTags(tagsAdded);
         if (invalidTagIds.length > 0) {
             return res.status(400).json({ error: `Invalid tag IDs: ${invalidTagIds.join(', ')}` });
         }
 
-        const invalidRemovedTagIds = validateTags(tagsRemoved);
+        const invalidRemovedTagIds = await validateTags(tagsRemoved);
         if (invalidRemovedTagIds.length > 0) {
             return res.status(400).json({ error: `Invalid tag IDs: ${invalidRemovedTagIds.join(', ')}` });
         }

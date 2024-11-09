@@ -70,6 +70,7 @@ export default async function handler(req, res) {
             totalPages: Math.ceil(totalCount / limit),
         });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: "Templates could not be fetched."})
     }
 }

@@ -34,13 +34,13 @@ export default async function handler(req, res) {
 
     try {
         // validate tags - tags must exist in order to link them to blogpost
-        const invalidTagIds = validateTags(tagsId);
+        const invalidTagIds = await validateTags(tagsId);
         if (invalidTagIds.length > 0) {
             return res.status(400).json({ error: `Invalid tag IDs: ${invalidTagIds.join(', ')}` });
         }
 
         // validate templates - templates must exist in order to link them to blogpost
-        const invalidTemplateIds = validateTemplates(templatesId);
+        const invalidTemplateIds = await validateTemplates(templatesId);
         if (invalidTemplateIds.length > 0) {
             return res.status(400).json({ error: `Invalid template IDs: ${invalidTemplateIds.join(', ')}` });
         }

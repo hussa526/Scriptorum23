@@ -68,19 +68,19 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: `Invalid tag IDs: ${invalidTagIds.join(', ')}` });
         }
 
-        const invalidRemovedTagIds = validateTags(tagsRemoved);
+        const invalidRemovedTagIds = await validateTags(tagsRemoved);
         if (invalidRemovedTagIds.length > 0) {
             return res.status(400).json({ error: `Invalid tag IDs: ${invalidRemovedTagIds.join(', ')}` });
         }
 
         // validate templates - templates must exist in order to link them to blogpost
-        const invalidTemplateIds = validateTemplates(templatesAdded);
+        const invalidTemplateIds = await validateTemplates(templatesAdded);
         if (invalidTemplateIds.length > 0) {
             return res.status(400).json({ error: `Invalid template IDs: ${invalidTemplateIds.join(', ')}` });
         }
 
         // validate templates - templates must exist in order to unlink them to blogpost
-        const invalidRemovedTemplateIds = validateTemplates(templatesRemoved);
+        const invalidRemovedTemplateIds = await validateTemplates(templatesRemoved);
         if (invalidRemovedTemplateIds.length > 0) {
             return res.status(400).json({ error: `Invalid template IDs: ${invalidRemovedTemplateIds.join(', ')}` });
         }
