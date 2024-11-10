@@ -11,4 +11,5 @@ export interface Template {
     user: User;
     extension: string;
     blogposts: Blogpost[];
+    userId: number;
 }
