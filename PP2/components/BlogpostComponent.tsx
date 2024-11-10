@@ -1,39 +1,6 @@
 import React from 'react';
 
-interface Tag {
-    id: number;
-    tag: string;
-}
-
-interface Template {
-    id: number;
-    title: string;
-    explanation: string;
-    code: string;
-    tags: Tag[];
-}
-
-interface User {
-    id: number;
-    username: string;
-}
-
-interface Vote {
-    id: number;
-    user: User;
-    type: boolean;
-    blogpost?: Blogpost | null;
-    comment?: Comment | null;
-}
-
-interface Blogpost {
-    id: number;
-    title: string;
-    content: string;
-    tags: Tag[];
-    templates: Template[];
-    votes: Vote[];
-}
+import { Blogpost } from '@/interface/Blogpost';
 
 interface BlogpostComponentProps {
     blogpost: Blogpost;

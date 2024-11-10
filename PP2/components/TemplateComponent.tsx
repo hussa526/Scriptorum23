@@ -2,32 +2,15 @@ import React from 'react';
 
 import Link from 'next/link';
 
-interface Tag {
-    id: number;
-    tag: string;
-}
+import { Template } from '@/interface/Template';
 
-interface User {
-    id: number;
-    username: string;
-}
-
-interface Template {
-    id: number;
-    title: string;
-    explanation: string;
-    code: string;
-    tags: Tag[];
-    user: User;
-}
-
-interface TemplateComponentProps {
+export interface TemplateComponentProps {
     template: Template;
 }
 
 const TemplateComponent: React.FC<TemplateComponentProps> = ({ template }) => {
     return (
-        <Link href={`/template/${template.id}`} className="relative w-[70%] bg-white border-2 border-gray-200 rounded-lg shadow-lg p-6 mb-6 hover:shadow-2xl hover:scale-105 hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 ease-in-out transform">
+        <Link href={`/template/${template.id}`} className="relative w-[70%] bg-white border-2 border-gray-200 rounded-lg shadow-lg p-6 mb-6 hover:shadow-2xl hover:scale-105 hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 ease-in-out transform">           
             {/* Title and Explanation */}
             <div className="flex items-center space-x-2">
                 <h2 className="text-left text-2xl font-semibold text-gray-800">{template.title}</h2>
