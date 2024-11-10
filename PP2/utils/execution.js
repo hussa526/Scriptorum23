@@ -121,6 +121,6 @@ export async function codeExecution(language, code, stdin) {
 
         // console.log(`Runtime error: ${error.message}`);
         output["stderr"].push(error.message);
-        return { stderr: error.message, stdout: null };
+        return output;
     }
 }

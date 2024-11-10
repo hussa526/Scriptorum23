@@ -18,6 +18,7 @@ export default async function handler(req, res) {
                 blogposts: true,
                 tags: true,
                 forks: true,
+                user: true,
             }
         });
 
