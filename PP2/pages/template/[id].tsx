@@ -1,17 +1,12 @@
 import React, { useState, useEffect } from 'react';
-
 import { useRouter } from 'next/router';
-
 import { Template } from '@/interface/Template';
 import CodeSection from '@/components/CodeDisplay';
 import Navbar from '@/components/Navbar';
 
-// this is the main page that handles template viewing
-
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsInVzZXJuYW1lIjoibmprIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3MzEyNjI3NDAsImV4cCI6MTczMTI2NjM0MH0.3vcSrz-fbnE4r17fXfa0zjz66QKhpTkLHNOmOFVunrE";
-const userId = 3;
-
 const TemplatePage: React.FC = () => {
+    const [token, setToken] = useState<string | null>(null);
+    const [userId, setUserId] = useState<number | null>(null);
     const router = useRouter();
     const { id } = router.query;
     const [template, setTemplate] = useState<Template | null>(null);
@@ -22,7 +17,16 @@ const TemplatePage: React.FC = () => {
     const [isRunning, setIsRunning] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isEditing, setIsEditing] = useState(false);
-    const [editedCode, setEditedCode] = useState(''); // Added state to handle the edited code
+    const [editedCode, setEditedCode] = useState('');
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const tokenFromStorage = localStorage.getItem("userToken");
+            const userIdFromStorage = Number(localStorage.getItem("userId"));
+            setToken(tokenFromStorage);
+            setUserId(userIdFromStorage);
+        }
+    }, []);
 
     useEffect(() => {
         if (id) {
@@ -36,7 +40,7 @@ const TemplatePage: React.FC = () => {
                     } else {
                         const data = await res.json();
                         setTemplate(data);
-                        setEditedCode(data.code); // Initialize the edited code with the current code
+                        setEditedCode(data.code);
                     }
                 } catch (error) {
                     console.error('Error fetching template:', error);
@@ -60,7 +64,6 @@ const TemplatePage: React.FC = () => {
                 body: JSON.stringify({ language: template?.extension, code: template?.code, input: stdin }),
             });
             const data = await res.json();
-            console.log(data);
             setStdout(data.stdout);
             const formattedStderr = data.stderr?.join('\n');
             setStderr(formattedStderr);
@@ -78,27 +81,48 @@ const TemplatePage: React.FC = () => {
 
     const handleSaveCode = async () => {
         if (template) {
-            // Save the edited code
             setTemplate({ ...template, code: editedCode });
-            setIsEditing(false); // Switch back to view mode
-
-            // Optionally, send the updated code to the server to persist it
+            setIsEditing(false);
             try {
                 const res = await fetch(`/api/template/update`, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `Bearer ${token}` ,
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ tempId: template.id, code: editedCode }),
                 });
                 if (res.status == 401) {
-                    setError('Unauthorized.');
+                    alert('Unauthorized.');
                 }
                 const data = await res.json();
                 setEditedCode(data.code);
             } catch (error) {
                 console.error('Error saving template:', error);
+                alert(error);
+            }
+        }
+    };
+
+    const handleForkTemplate = async () => {
+
+        if (template) {
+            try {
+                const res = await fetch(`/api/template/fork`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ tempId: template.id }),
+                });
+                const data = await res.json();
+                router.push({
+                    pathname: `/template/${data.id}`,
+                });
+            } catch (error) {
+                console.error('Error forking template:', error);
+                alert('Error forking template.');
             }
         }
     };
@@ -110,13 +134,32 @@ const TemplatePage: React.FC = () => {
 
     const canEdit = template.user.id === userId;
 
+    const handleForkedLinkClick = () => {
+        router.push(`/template/${template.forkedId}`);
+    };
+
     return (
         <>
         {/* <Navbar /> */}
         <div className="flex flex-col md:flex-row gap-6 p-6 mt-16">
             <aside className="md:w-1/4 border-b md:border-b-0 md:border-r border-gray-200 pb-6 md:pb-0 md:pr-6 space-y-4">
                 <div>
-                    <h1 className="text-2xl font-bold mb-2">{template.title}</h1>
+                    <h1 className="text-2xl font-bold mb-2">
+                        {template.title} 
+                        {template.isForked && (
+                            <>
+                                {' '}
+                                (Forked{' '}
+                                <span
+                                    onClick={handleForkedLinkClick}
+                                    className="text-blue-500 cursor-pointer hover:underline"
+                                >
+                                    @{template.forkedId}
+                                </span>
+                                )
+                            </>
+                        )}
+                    </h1>
                     <p><strong>Explanation:</strong> {template.explanation}</p>
                     <p><strong>Created by:</strong> {template.user.username} </p>
                     <div>
@@ -149,6 +192,12 @@ const TemplatePage: React.FC = () => {
                             Edit Code
                         </button>
                     )}
+                    <button
+                        onClick={handleForkTemplate}
+                        className="bg-blue-500 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600"
+                    >
+                        Fork Template
+                    </button>
                 </div>
 
                 {isEditing ? (
