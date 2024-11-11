@@ -12,4 +12,7 @@ export interface Template {
     extension: string;
     blogposts: Blogpost[];
     userId: number;
+    isForked: boolean;
+    forkedId: number;
+    forks: Template[];
 }
