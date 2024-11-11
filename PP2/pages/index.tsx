@@ -20,7 +20,7 @@ const geistMono = localFont({
 export default function Home() {
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
       <div className="bg-gray-50 min-h-screen flex flex-col">
         {/* Main Content Section */}
         <div className="grid pt-16 px-8 gap-6 md:grid-cols-12 grid-cols-1">

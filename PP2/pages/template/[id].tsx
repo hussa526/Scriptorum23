@@ -112,7 +112,7 @@ const TemplatePage: React.FC = () => {
 
     return (
         <>
-        <Navbar />
+        {/* <Navbar /> */}
         <div className="flex flex-col md:flex-row gap-6 p-6 mt-16">
             <aside className="md:w-1/4 border-b md:border-b-0 md:border-r border-gray-200 pb-6 md:pb-0 md:pr-6 space-y-4">
                 <div>
