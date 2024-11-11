@@ -1,6 +1,3 @@
-// login.tsx
-// Created by ChatGPT for user login page functionality in a Single Page Application (SPA)
-
 import { useState } from "react";
 import { useRouter } from "next/router";
 
@@ -33,8 +30,9 @@ const LoginPage = () => {
       }
 
       const result = await response.json();
-      // Save user info to localStorage/sessionStorage or cookie
+      // Save user info to localStorage
       localStorage.setItem("userToken", result.token); // Example, adjust as needed
+      localStorage.setItem("userId", result.id.toString()); // Ensure userId is a string
 
       // Set login state in the current page (SPA)
       setIsLoggedIn(true);
