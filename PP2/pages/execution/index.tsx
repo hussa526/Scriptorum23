@@ -60,9 +60,15 @@ const CodeEditorPage: React.FC = () => {
     };
 
     useEffect(() => {
+        // Sync height between textarea and syntax highlighter
         if (textAreaRef.current) {
             textAreaRef.current.style.height = 'auto';
             textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+        }
+    
+        if (syntaxHighlighterRef.current) {
+            // syntaxHighlighterRef.current.style.height = 'auto';
+            syntaxHighlighterRef.current.style.height = `${textAreaRef.current?.scrollHeight}px`;
         }
     }, [code]);
 
@@ -72,10 +78,10 @@ const CodeEditorPage: React.FC = () => {
                 syntaxHighlighterRef.current.scrollTop = textAreaRef.current.scrollTop;
             }
         };
-
+    
         if (textAreaRef.current) {
             textAreaRef.current.addEventListener('scroll', syncScroll);
-
+    
             return () => {
                 textAreaRef.current?.removeEventListener('scroll', syncScroll);
             };
@@ -132,7 +138,7 @@ const CodeEditorPage: React.FC = () => {
                 
                 <div className="flex">
                     {/* Line numbers */}
-                    <div className="bg-gray-200 text-sm text-gray-400 py-3 px-2 flex flex-col items-end select-none rounded-l-md">
+                    <div className="bg-gray-200 text-sm text-gray-400 py-3 px-2 flex flex-col items-end select-none rounded-l-md sticky">
                         {code.split('\n').map((_, index) => (
                             <div key={index} className="leading-6">
                                 {index + 1}
@@ -140,7 +146,7 @@ const CodeEditorPage: React.FC = () => {
                         ))}
                     </div>
 
-                    <div className="relative flex-1">
+                    <div className="relative flex-1 bg-gray-100">
 
                         {/* Syntax Highlighter */}
                         <div
@@ -149,14 +155,14 @@ const CodeEditorPage: React.FC = () => {
                             aria-hidden="true"
                             style={{
                                 padding: '0.75rem',
+                                backgroundColor: 'transparent',
                                 minHeight: '500px',
-                                maxHeight: '700px',
+                                // maxHeight: '700px',
                             }}
                         >
                             <SyntaxHighlighter
                                 language={language}
                                 style={solarizedLight}
-                                className="text-[12px] leading-6"
                                 customStyle={{
                                     backgroundColor: 'transparent',
                                     padding: 0,
@@ -178,12 +184,12 @@ const CodeEditorPage: React.FC = () => {
                             rows={10}
                             spellCheck="false"
                             style={{
+                                backgroundColor: 'transparent',
                                 zIndex: 2,
-                                height: 'auto',
-                                minHeight: '500px',
-                                maxHeight: '700px',
+                                minHeight: '500px', // Set minimum height to keep a reasonable size
                                 overflowX: 'auto',
                                 whiteSpace: 'pre',
+                                // maxHeight: '700px', // Add max height to prevent infinite scrolling
                             }}
                         />
                     </div>

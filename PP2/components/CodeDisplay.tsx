@@ -16,23 +16,32 @@ const CodeSection: React.FC<CodeSectionProps> = ({ code, language }) => {
     const lines = code.split('\n');
 
     return (
-        <div className="flex bg-gray-100 rounded-md overflow-auto text-sm">
-            <div className="bg-gray-200 text-gray-500 px-2 py-2 text-right select-none flex flex-col items-end">
-                {lines.map((_, index) => (
-                    <div key={index} className="leading-5">
-                        {index + 1}
-                    </div>
-                ))}
+        <div className="flex bg-gray-100 rounded-md overflow-auto text-sm flex-col">
+            {/* File name box */}
+            <div className="bg-gray-300 text-gray-700 text-sm font-semibold px-4 py-1 rounded-t-md">
+                {language}
             </div>
 
-            <div className="px-2 py-2 whitespace-pre-wrap break-words">
-                <SyntaxHighlighter
-                    language={language}
-                    style={style}
-                    customStyle={{ backgroundColor: 'transparent', padding: 0 }}
-                >
-                    {code}
-                </SyntaxHighlighter>
+            <div className="flex">
+                {/* Line numbers */}
+                <div className="bg-gray-200 text-gray-500 px-2 py-2 text-right select-none flex flex-col items-end">
+                    {lines.map((_, index) => (
+                        <div key={index} className="leading-5">
+                            {index + 1}
+                        </div>
+                    ))}
+                </div>
+
+                {/* Code block */}
+                <div className="px-2 py-2 whitespace-pre-wrap break-words">
+                    <SyntaxHighlighter
+                        language={language}
+                        style={style}
+                        customStyle={{ backgroundColor: 'transparent', padding: 0 }}
+                    >
+                        {code}
+                    </SyntaxHighlighter>
+                </div>
             </div>
         </div>
     );
