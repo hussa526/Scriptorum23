@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { Template } from '@/interface/Template';
 import CodeSection from '@/components/CodeDisplay';
 import Navbar from '@/components/Navbar';
+import Link from 'next/link';
 
 const TemplatePage: React.FC = () => {
     const [token, setToken] = useState<string | null>(null);
@@ -142,45 +143,50 @@ const TemplatePage: React.FC = () => {
         <>
         {/* <Navbar /> */}
         <div className="flex flex-col md:flex-row gap-6 p-6 mt-16">
-            <aside className="md:w-1/4 border-b md:border-b-0 md:border-r border-gray-200 pb-6 md:pb-0 md:pr-6 space-y-4">
+            <aside className="md:w-1/5 border-b md:border-b-0 md:border-r border-gray-200 pb-6 md:pb-0 md:pr-6 space-y-4">
+                {/* Related Blog Posts Section */}
                 <div>
-                    <h1 className="text-2xl font-bold mb-2">
-                        {template.title} 
-                        {template.isForked && (
-                            <>
-                                {' '}
-                                (Forked{' '}
-                                <span
-                                    onClick={handleForkedLinkClick}
-                                    className="text-blue-500 cursor-pointer hover:underline"
-                                >
-                                    @{template.forkedId}
-                                </span>
-                                )
-                            </>
-                        )}
-                    </h1>
-                    <p><strong>Explanation:</strong> {template.explanation}</p>
-                    <p><strong>Created by:</strong> {template.user.username} </p>
-                    <div>
-                        <strong>Tags:</strong>
-                        <ul className="list-disc ml-6">
-                            {template.tags.map((tag) => (
-                                <li key={tag.id}>{tag.tag}</li>
-                            ))}
-                        </ul>
-                    </div>
-                    <p><strong>Language:</strong> {template.extension} </p>
-                </div>
-                <div>
-                    <h2 className="text-xl font-semibold mb-2">Related Blog Posts</h2>
+                    <h2 className="text-xl font-semibold mb-2">Blog Posts</h2>
                     <ul className="space-y-2">
-                        <li>Blog post 1</li>
-                        <li>Blog post 2</li>
-                        <li>Blog post 3</li>
+                        {template.blogposts.map((blogpost) => (
+                            <li key={blogpost.id} className="p-4 bg-white rounded-md shadow-md hover:bg-gray-50 transition duration-200">
+                                {/* Link to the individual blog post page */}
+                                <Link href={`/blogpost/${blogpost.id}`} className="block">
+                                    {/* Blog Post Title */}
+                                    <h3 className="font-semibold text-lg">{blogpost.title}</h3>
+
+                                    {/* Blog Post Author */}
+                                    <p className="mt-2 text-sm text-gray-600">
+                                        By <strong>{blogpost.user.username}</strong>
+                                    </p>
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
+                {/* Related Forked Templates Section */}
+                <div>
+                    <h2 className="text-xl font-semibold mb-2">Forks</h2>
+                    <ul className="space-y-2">
+                        {template.forks.map((fork) => (
+                            <li key={fork.id} className="p-4 bg-white rounded-md shadow-md hover:bg-gray-50 transition duration-200">
+                                {/* Link to the individual forked template page */}
+                                <Link href={`/template/${fork.id}`} className="block">
+                                    {/* Forked Template Title */}
+                                    <h3 className="font-semibold text-lg">{fork.title}</h3>
+
+                                    {/* Forked Template Author */}
+                                    <p className="mt-2 text-sm text-gray-600">
+                                        By <strong>{fork.user.username}</strong>
+                                    </p>
+                                </Link>
+                            </li>
+                        ))}
                     </ul>
                 </div>
             </aside>
+
 
             <main className="md:w-1/2">
                 <div className="space-y-4 mb-6 text-right">
@@ -217,11 +223,44 @@ const TemplatePage: React.FC = () => {
                         </button>
                     </div>
                 ) : (
-                    <CodeSection code={template.code} language="javascript" />
+                    <CodeSection code={template.code} language={template.extension} />
                 )}
             </main>
 
             <aside className="md:w-1/4 border-t md:border-t-0 md:border-l border-gray-200 pt-6 md:pt-0 md:pl-6 space-y-4">
+                <div>
+                    <div className="flex items-center space-x-2">
+                        <h1 className="text-2xl font-bold mb-2">
+                            {template.title}
+                        </h1>
+                        <p>{template.isForked && (
+                            <>
+                                {' '}
+                                (Forked{' '}
+                                <span
+                                    onClick={handleForkedLinkClick}
+                                    className="text-blue-500 cursor-pointer hover:underline"
+                                >
+                                    @{template.forkedId}
+                                </span>
+                                )
+                            </>
+                        )}</p>
+                    </div>
+
+                    <p className="text-gray-500">@{template.user.username}</p>
+
+                    <div className="flex flex-wrap gap-2 mt-4 mb-4">
+                        {template.tags.map((tag) => (
+                        <div
+                            key={tag.id}
+                            className="bg-gray-500 text-white-800 px-6 py-2 rounded-md text-sm font-semibold shadow-md hover:bg-blue-200 transition-all duration-200 ease-in-out flex items-center justify-center"
+                        >
+                            {tag.tag}
+                        </div>
+                        ))}
+                    </div>
+                </div>
                 <div>
                     <h3 className="text-lg font-semibold mb-2">Standard Input (stdin)</h3>
                     <textarea
