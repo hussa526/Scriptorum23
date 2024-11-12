@@ -82,6 +82,28 @@ const CodeEditorPage: React.FC = () => {
         }
     }, []);
 
+    const handleTab = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === 'Tab') {
+            e.preventDefault(); // Prevent the default behavior (focusing next element)
+
+            const textarea = textAreaRef.current;
+            if (textarea) {
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                
+                // Insert tab character at cursor position
+                setCode(code.slice(0, start) + '\t' + code.slice(end));
+
+                // Move cursor position after the tab
+                setTimeout(() => {
+                    if (textarea) {
+                        textarea.selectionStart = textarea.selectionEnd = start + 1;
+                    }
+                }, 0);
+            }
+        }
+    };
+
     return (
         <>
         <div className="flex flex-col md:flex-row space-y-8 md:space-x-8 p-6">
@@ -107,51 +129,64 @@ const CodeEditorPage: React.FC = () => {
                     <option value="c++">C++</option>
                     <option value="c">C</option>
                 </select>
-
-                <div className="relative">
-                    <div
-                        ref={syntaxHighlighterRef}
-                        className="absolute inset-0 w-[100%] leading-6 text-[12px] overflow-auto pointer-events-none rounded border bg-white"
-                        aria-hidden="true"
-                        style={{
-                            padding: '0.75rem',
-                            zIndex: 1,
-                            height: 'auto',
-                            minHeight: '500px',
-                            maxHeight: '700px',
-                        }}
-                    >
-                        <SyntaxHighlighter
-                            language={language}
-                            style={solarizedLight}
-                            className="text-[12px] leading-6"
-                            customStyle={{
-                                backgroundColor: 'transparent',
-                                padding: 0,
-                                margin: 0,
-                                overflowX: 'auto',
-                            }}
-                        >
-                            {code || ' '}
-                        </SyntaxHighlighter>
+                
+                <div className="flex">
+                    {/* Line numbers */}
+                    <div className="bg-gray-200 text-sm text-gray-400 py-3 px-2 flex flex-col items-end select-none rounded-l-md">
+                        {code.split('\n').map((_, index) => (
+                            <div key={index} className="leading-6">
+                                {index + 1}
+                            </div>
+                        ))}
                     </div>
 
-                    <textarea
-                        ref={textAreaRef}
-                        className="font-mono relative w-[100%] leading-6 text-[12px] text-transparent caret-black p-3 border rounded resize-none bg-transparent"
-                        value={code}
-                        onChange={handleCodeChange}
-                        rows={10}
-                        spellCheck="false"
-                        style={{
-                            zIndex: 2,
-                            height: 'auto',
-                            minHeight: '500px',
-                            maxHeight: '700px',
-                            overflowX: 'auto',
-                            whiteSpace: 'pre',
-                        }}
-                    />
+                    <div className="relative flex-1">
+
+                        {/* Syntax Highlighter */}
+                        <div
+                            ref={syntaxHighlighterRef}
+                            className="absolute inset-0 w-full leading-6 text-[12px] overflow-auto pointer-events-none rounded-r-md border bg-white"
+                            aria-hidden="true"
+                            style={{
+                                padding: '0.75rem',
+                                minHeight: '500px',
+                                maxHeight: '700px',
+                            }}
+                        >
+                            <SyntaxHighlighter
+                                language={language}
+                                style={solarizedLight}
+                                className="text-[12px] leading-6"
+                                customStyle={{
+                                    backgroundColor: 'transparent',
+                                    padding: 0,
+                                    margin: 0,
+                                    overflowX: 'auto',
+                                }}
+                            >
+                                {code || ' '}
+                            </SyntaxHighlighter>
+                        </div>
+
+                        {/* Textarea for Editing */}
+                        <textarea
+                            ref={textAreaRef}
+                            className="font-mono relative w-full leading-6 text-[12px] text-transparent caret-black p-3 border rounded-r-md resize-none bg-transparent focus:ring-0 focus:border-gray-400 focus:outline-none"
+                            value={code}
+                            onChange={handleCodeChange}
+                            onKeyDown={(e) => handleTab(e)}
+                            rows={10}
+                            spellCheck="false"
+                            style={{
+                                zIndex: 2,
+                                height: 'auto',
+                                minHeight: '500px',
+                                maxHeight: '700px',
+                                overflowX: 'auto',
+                                whiteSpace: 'pre',
+                            }}
+                        />
+                    </div>
                 </div>
 
                 <button

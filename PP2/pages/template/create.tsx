@@ -40,7 +40,7 @@ const CreateTemplatePage: React.FC = () => {
         const data = await res.json();
         if (res.status === 201) {
           alert('Template created successfully!');
-          router.push('/'); // Redirect to the homepage or another page
+          router.push(`/template/${data.id}`); // Redirect to the homepage or another page
         } else {
           alert(data.error);
         }
