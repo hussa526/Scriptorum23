@@ -3,6 +3,8 @@ import SyntaxHighlighter from 'react-syntax-highlighter';
 import { solarizedLight } from 'react-syntax-highlighter/dist/cjs/styles/hljs';
 import { useRouter } from 'next/router'; // Import useRouter
 
+import MonacoEditorComponent from '@/components/CodeEditor';
+
 const CodeEditorPage: React.FC = () => {
     const [language, setLanguage] = useState('javascript');
     const [code, setCode] = useState('');
@@ -110,6 +112,10 @@ const CodeEditorPage: React.FC = () => {
         }
     };
 
+    const handleEditorChange = (value: string | undefined) => {
+        setCode(value || '');
+    };
+
     return (
         <>
         <div className="flex flex-col md:flex-row space-y-8 md:space-x-8 p-6">
@@ -135,65 +141,13 @@ const CodeEditorPage: React.FC = () => {
                     <option value="c++">C++</option>
                     <option value="c">C</option>
                 </select>
-                
-                <div className="flex">
-                    {/* Line numbers */}
-                    <div className="bg-gray-200 text-sm text-gray-400 py-3 px-2 flex flex-col items-end select-none rounded-l-md sticky">
-                        {code.split('\n').map((_, index) => (
-                            <div key={index} className="leading-6">
-                                {index + 1}
-                            </div>
-                        ))}
-                    </div>
 
-                    <div className="relative flex-1 bg-gray-100">
-
-                        {/* Syntax Highlighter */}
-                        <div
-                            ref={syntaxHighlighterRef}
-                            className="absolute inset-0 w-full leading-6 text-[12px] overflow-auto pointer-events-none rounded-r-md border bg-white"
-                            aria-hidden="true"
-                            style={{
-                                padding: '0.75rem',
-                                backgroundColor: 'transparent',
-                                minHeight: '500px',
-                                // maxHeight: '700px',
-                            }}
-                        >
-                            <SyntaxHighlighter
-                                language={language}
-                                style={solarizedLight}
-                                customStyle={{
-                                    backgroundColor: 'transparent',
-                                    padding: 0,
-                                    margin: 0,
-                                    overflowX: 'auto',
-                                }}
-                            >
-                                {code || ' '}
-                            </SyntaxHighlighter>
-                        </div>
-
-                        {/* Textarea for Editing */}
-                        <textarea
-                            ref={textAreaRef}
-                            className="font-mono relative w-full leading-6 text-[12px] text-transparent caret-black p-3 border rounded-r-md resize-none bg-transparent focus:ring-0 focus:border-gray-400 focus:outline-none"
-                            value={code}
-                            onChange={handleCodeChange}
-                            onKeyDown={(e) => handleTab(e)}
-                            rows={10}
-                            spellCheck="false"
-                            style={{
-                                backgroundColor: 'transparent',
-                                zIndex: 2,
-                                minHeight: '500px', // Set minimum height to keep a reasonable size
-                                overflowX: 'auto',
-                                whiteSpace: 'pre',
-                                // maxHeight: '700px', // Add max height to prevent infinite scrolling
-                            }}
-                        />
-                    </div>
-                </div>
+                <MonacoEditorComponent
+                    language={language}
+                    code={code}
+                    onChange={handleEditorChange}
+                    readOnly={false}
+                />
 
                 <button
                     className="w-full bg-green-500 text-white font-bold py-2 rounded-md hover:bg-green-600"

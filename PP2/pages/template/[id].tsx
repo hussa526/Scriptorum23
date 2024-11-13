@@ -5,6 +5,9 @@ import CodeSection from '@/components/CodeDisplay';
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 
+
+import MonacoEditorComponent from '@/components/CodeEditor';
+
 const TemplatePage: React.FC = () => {
     const [token, setToken] = useState<string | null>(null);
     const [userId, setUserId] = useState<number | null>(null);
@@ -62,7 +65,7 @@ const TemplatePage: React.FC = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ language: template?.extension, code: template?.code, input: stdin }),
+                body: JSON.stringify({ language: template?.extension, code: editedCode, input: stdin }),
             });
             const data = await res.json();
             setStdout(data.stdout);
@@ -126,6 +129,13 @@ const TemplatePage: React.FC = () => {
                 alert('Error forking template.');
             }
         }
+    };
+
+    const handleCancelEdit = () => {
+        if (template) {
+            setEditedCode(template.code); // Reset codeEdit to template's original code
+        }
+        setIsEditing(false);
     };
 
     if (loading) return <p className="text-center">Loading...</p>;
@@ -200,20 +210,18 @@ const TemplatePage: React.FC = () => {
                     )}
                     <button
                         onClick={handleForkTemplate}
-                        className="bg-blue-500 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600"
+                        className="bg-yellow-500 text-white font-bold py-2 px-4 rounded-md hover:bg-yellow-600"
                     >
                         Fork Template
                     </button>
                 </div>
 
                 {isEditing ? (
-                    <div className="w-full">
-                        <textarea
-                            value={editedCode}
-                            onChange={(e) => setEditedCode(e.target.value)}
-                            className="w-full p-4 border rounded-md resize-none"
-                            rows={10}
-                            placeholder="Edit your code"
+                    <div>
+                        <MonacoEditorComponent
+                            language={template.extension}
+                            code={editedCode}
+                            onChange={(value) => setEditedCode(value || '')}
                         />
                         <button
                             onClick={handleSaveCode}
@@ -221,9 +229,20 @@ const TemplatePage: React.FC = () => {
                         >
                             Save Changes
                         </button>
+                        <button
+                            onClick={handleCancelEdit}
+                            className="bg-gray-500 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-600 mt-4 ml-2"
+                        >
+                            Cancel
+                        </button>
                     </div>
                 ) : (
-                    <CodeSection code={template.code} language={template.extension} />
+                    <MonacoEditorComponent
+                        language={template.extension}
+                        code={template.code}
+                        onChange={() => {}}
+                        readOnly={true}
+                    />
                 )}
             </main>
 
