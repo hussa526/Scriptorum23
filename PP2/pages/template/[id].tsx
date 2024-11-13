@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Template } from '@/interface/Template';
-import CodeSection from '@/components/CodeDisplay';
-import Navbar from '@/components/Navbar';
 import Link from 'next/link';
-
-
 import MonacoEditorComponent from '@/components/CodeEditor';
 
 const TemplatePage: React.FC = () => {
