@@ -34,13 +34,11 @@ const CodeEditorPage: React.FC = () => {
             const data = await res.json();
             console.log(data);
             
-            if (data.error) {
-                alert(data.error);
-            } else {
-                setStdout(data.stdout);
-                const formattedStderr = data.stderr?.join('\n');
-                setStderr(formattedStderr);
-            }
+            // if (data.error) {
+            //     alert(data.error);
+            // }
+            setStdout(data.stdout);
+            setStderr(data.stderr);
         } catch (error) {
             console.error('Error running code:', error);
             setStdout('Error running code.');

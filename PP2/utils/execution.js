@@ -5,16 +5,55 @@ import { promisify } from 'util';
 const execPromise = promisify(exec);
 
 function temporaryFile(language) {
-    let tempFilePath;
-    if (language === 'java') {
-        tempFilePath = `Main`;
-    } else {
-        tempFilePath = `temp_${language}`;
-    }
-    return tempFilePath;
+    return language === 'java' ? `Main` : `temp_${language}`;
 }
 
-// Helper function to execute code
+// Generate shell script content based on language
+function generateShellScript(language, sourceFile, compiledFile, inputFile, stdoutFile, stderrFile, hasInput) {
+    let compileCommand = '';
+    let executeCommand = '';
+
+    switch (language) {
+        case 'javascript':
+            executeCommand = `node ${sourceFile}`;
+            break;
+        case 'python':
+            executeCommand = `python3 ${sourceFile}`;
+            break;
+        case 'c':
+            compileCommand = `gcc -Werror -Wall -Wextra ${sourceFile} -o ${compiledFile}`;
+            executeCommand = `./${compiledFile}`;
+            break;
+        case 'c++':
+            compileCommand = `g++ ${sourceFile} -o ${compiledFile}`;
+            executeCommand = `./${compiledFile}`;
+            break;
+        case 'java':
+            compileCommand = `javac ${sourceFile}`;
+            executeCommand = `java ${compiledFile}`;
+            break;
+        default:
+            throw new Error("Unsupported language");
+    }
+
+    // Use `< ${inputFile}` only if there is input
+    const inputRedirect = hasInput ? `< ${inputFile}` : '';
+    
+    return `
+        #!/bin/bash
+        ${compileCommand && `${compileCommand} 2> ${stderrFile} || exit 1`}
+        ${executeCommand} ${inputRedirect} > ${stdoutFile} 2>> ${stderrFile}
+    `;
+}
+
+function safeUnlink(file) {
+    if (fs.existsSync(file)) {
+        fs.unlinkSync(file);
+    }
+}
+
+// Main execution function
+
 export async function codeExecution(language, code, stdin) {
     const extension = language === 'javascript' ? '.js' :
                       language === 'python' ? '.py' :
@@ -23,7 +62,6 @@ export async function codeExecution(language, code, stdin) {
                       language === 'java' ? '.java' :
                       null;
 
-    // Ensure the extension is valid
     if (!extension) {
         return { error: "Unsupported language" };
     }
@@ -31,96 +69,44 @@ export async function codeExecution(language, code, stdin) {
     const compiledFile = temporaryFile(language);
     const sourceFile = `${compiledFile}${extension}`;
     const inputFile = `${compiledFile}_input.txt`;
+    const stdoutFile = `${compiledFile}_stdout.txt`;
+    const stderrFile = `${compiledFile}_stderr.txt`;
+    const scriptFile = `${compiledFile}.sh`;
 
-    // Create a temporary file for the code
-    fs.writeFileSync(`${sourceFile}`, code);
-    if (stdin) {
-        fs.writeFileSync(inputFile, stdin);
-    }    
-
-    let compile = '';
-    let command = '';
-    switch (language) {
-        case 'javascript':
-            command = `node ${sourceFile}`;
-            break;
-        case 'python':
-            command = `python3 ${sourceFile}`;
-            break;
-        case 'c':
-            compile = `gcc -Werror -Wall -Wextra ${sourceFile} -o ${compiledFile}`;
-            command = `./${compiledFile}`;
-            break;
-        case 'c++':
-            compile = `g++ ${sourceFile} -o ${compiledFile}`
-            command = `./${compiledFile}`;
-            break;
-        case 'java':
-            compile = `javac ${sourceFile}`;
-            command = `java ${compiledFile}`;
-            break;
-        default:
-            return { error: "Unsupported language" };
-    }
-
-    if (stdin) {
-        command += ` < ${inputFile}`;
-    }
-    
-    const output = { stderr: [], stdout: null};
-
-    if (compile) {
-        try {
-            const { stderrWarnings } = await execPromise(compile);
-
-            if (stderrWarnings) {
-                // compiler warnings
-                if (language === 'c' || language === 'c++' || language === 'java') {
-                    fs.unlinkSync(`${sourceFile}`);
-                }
-                // console.log(`Compiler (warning) error: ${stderrWarnings}`);
-                output["stderr"].push(stderrWarnings);
-            }
-        } catch (error) {
-            // compiler errors
-            if (language === 'c' || language === 'c++' || language === 'java') {
-                fs.unlinkSync(`${sourceFile}`);
-            }
-
-            output["stderr"].push(error.message);
-
-            return output;
-        }
-    }
+    console.log(language, code, stdin);
 
     try {
-        const { stdout, stderr } = await execPromise(command);
-
-        // Clean up temporary files
-        fs.unlinkSync(`${sourceFile}`);
-        if (stdin) fs.unlinkSync(inputFile);
-        if (language === 'c' || language === 'c++') {
-            fs.unlinkSync(compiledFile);
-        } else if (language === 'java') {
-            fs.unlinkSync(`${compiledFile}.class`);
+        // Write the code and input file
+        fs.writeFileSync(sourceFile, code);
+        if (stdin) {
+            fs.writeFileSync(inputFile, stdin);
         }
 
-        output["stdout"] = stdout || null;
-        if (stderr) output["stderr"].push(stderr);
-        
-        return output;
+        const shellScriptContent = generateShellScript(language, sourceFile, compiledFile, inputFile, stdoutFile, stderrFile, Boolean(stdin));
+        fs.writeFileSync(scriptFile, shellScriptContent);
+
+        await execPromise(`chmod +x ${scriptFile}`);
+        await execPromise(`./${scriptFile}`);
+
+        const stdout = fs.readFileSync(stdoutFile, 'utf-8');
+        const stderr = fs.readFileSync(stderrFile, 'utf-8');
+
+        return { stdout: stdout || null, stderr: stderr || null };
+
     } catch (error) {
-        // Clean up even if there's an error
-        fs.unlinkSync(`${sourceFile}`);
-        if (stdin) fs.unlinkSync(inputFile);
-        if (language === 'c' || language === 'c++') {
-            fs.unlinkSync(compiledFile);
-        } else if (language === 'java') {
-            fs.unlinkSync(`${compiledFile}.class`);
-        }
+        const stdout = fs.existsSync(stdoutFile) ? fs.readFileSync(stdoutFile, 'utf-8') : null;
+        const stderr = fs.existsSync(stderrFile) ? fs.readFileSync(stderrFile, 'utf-8') : error.message;
 
-        // console.log(`Runtime error: ${error.message}`);
-        output["stderr"].push(error.message);
-        return output;
+        return { error: "Execution failed", stdout, stderr };
+
+    } finally {
+        // Cleanup - check if each file exists before attempting to delete it
+        safeUnlink(sourceFile);
+        safeUnlink(stdoutFile);
+        safeUnlink(stderrFile);
+        safeUnlink(scriptFile);
+        if (stdin) safeUnlink(inputFile);
+        if (language === 'c' || language === 'c++') safeUnlink(compiledFile);
+        if (language === 'java') safeUnlink(`${compiledFile}.class`);
     }
 }
