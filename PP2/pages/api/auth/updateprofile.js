@@ -1,27 +1,26 @@
-import prisma from "../../../utils/prismaclient";
+import prisma from "@/utils/prismaclient";
 
-import { verifyToken } from "../../../utils/auth";
-
-export default async function handler (req, res)
-{
-	if (req.method != 'PUT')
-		return res.status(405).json({message: "need to use PUT method"})
-
-	const {authorization} = req.headers; 
-	
-	if (!authorization) {
-		return res.status(401).json({ message: "No authorization token" });
+export default async function handler (req, res) {
+	if (req.method != "PUT") {
+		return res.status(405).json({ error: "Method not allowed." });
 	}
 
-	const token = authorization.split(" ")[1];
-
+	const authHeader = req.headers.authorization;
+    
 	try {
-		const decoded = verifyToken(token);
-		const userId = decoded.userId;
+		// authenticate user
+		const result = await authUser(authHeader);
+		if (result.success === false) {
+			// failure to authenticate user
+			return res.status(result.status).json({ error: result.error });
+		}
+
+		const user = result.user;
 
 		const { username, firstName, lastName, email, avatar, phoneNumber, role} = req.body;
+
 		const updatedUser = await prisma.user.update({
-			where: { id: userId },
+			where: { id: user.id },
 			data: {
 				username,
 				firstName,
@@ -33,8 +32,9 @@ export default async function handler (req, res)
 			},
 		});
 
-		return res.status(200).json({ message: "Profile updated", user: updatedUser });
+		return res.status(200).json(updatedUser);
 	} catch (error) {
-		return res.status(401).json({ message: "Invalid or expired token" });
+		console.log(error.message);
+		return res.status(500).json({ error: "Error updating profile." });
 	}
 }
