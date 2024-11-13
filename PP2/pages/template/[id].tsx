@@ -65,8 +65,7 @@ const TemplatePage: React.FC = () => {
             });
             const data = await res.json();
             setStdout(data.stdout);
-            const formattedStderr = data.stderr?.join('\n');
-            setStderr(formattedStderr);
+            setStderr(data.stderr);
         } catch (error) {
             console.error('Error running code:', error);
             setStdout('Error running code.');
