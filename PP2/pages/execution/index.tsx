@@ -136,8 +136,15 @@ const CodeEditorPage: React.FC = () => {
                     <option value="javascript">JavaScript</option>
                     <option value="python">Python</option>
                     <option value="java">Java</option>
-                    <option value="c++">C++</option>
+                    <option value="cpp">C++</option>
                     <option value="c">C</option>
+                    <option value="go">Go</option>
+                    <option value="ruby">Ruby</option>
+                    <option value="rust">Rust</option>
+                    <option value="php">Php</option>
+                    <option value="r">R</option>
+                    <option value="perl">Perl</option>
+                    <option value="Haskell">Haskell</option>
                 </select>
 
                 <MonacoEditorComponent
