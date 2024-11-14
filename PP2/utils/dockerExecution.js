@@ -23,7 +23,7 @@ const dockerImages = {
 
 // Create a temporary file for the code
 function temporaryFile(language) {
-    return language === 'java' ? `Main` : `temp_${language}`; //_${uuidv4()}`;
+    return language === 'java' ? `Main` : `temp_${language}_${uuidv4()}`;
 }
 
 function safeUnlink(file) {
@@ -80,7 +80,7 @@ export async function codeExecution(language, code, stdin) {
         const imageExist = await imageExists(imageTag);
         if (!imageExist) {
             // Build the Docker image if it doesn't exist
-            const dockerBuildCommand = `sudo docker build -t ${imageTag} -f utils/docker/Dockerfile.${language} .`;
+            const dockerBuildCommand = `sudo docker build -t ${imageTag} -f docker/Dockerfile.${language} .`;
             await execPromise(dockerBuildCommand);
         }
 
@@ -90,7 +90,7 @@ export async function codeExecution(language, code, stdin) {
         --memory="512m" \
         --memory-swap="512m" \
         ${imageTag} /bin/bash -c \
-        "timeout --signal=SIGKILL 30s ${generateDockerCommand(language, sourceFile, compiledFile, inputFile, outputFile, errorFile)}"`;    
+        "timeout --signal=SIGKILL 30s ${generateDockerCommand(language, sourceFile, compiledFile, inputFile, outputFile, errorFile)}"`;
 
         console.log(dockerRunCommand);
         await execPromise(dockerRunCommand);
