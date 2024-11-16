@@ -184,12 +184,13 @@ const CreateTemplatePage: React.FC = () => {
                         onChange={(e) => setSelectedLanguage(e.target.value)}
                     />
                 </div>
-                <div className="">
+
+                <div className="mt-4">
                     <label className="block text-lg">Code:</label>
                     <MonacoEditorComponent
                         language={selectedLanguage}  // Ensure language is passed as a string
                         code={templateCode}          // Ensure code is passed as a string
-                        onChange={() => {}}
+                        onChange={(newCode) => setTemplateCode(newCode ?? '')}  // Update the code state
                         readOnly={false}
                     />
                 </div>
