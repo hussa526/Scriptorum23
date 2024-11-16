@@ -45,7 +45,7 @@ export default async function handler(req, res) {
         });
 
         // return the templates, the current page, and the total number of pages
-        return res.status(201).json({
+        return res.status(200).json({
             templates,
             currentPage: page,
             totalCount,
