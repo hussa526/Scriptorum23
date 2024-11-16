@@ -1,20 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import { solarizedLight } from 'react-syntax-highlighter/dist/cjs/styles/hljs';
+import React, { useState } from 'react';
 import { useRouter } from 'next/router'; // Import useRouter
 
 import MonacoEditorComponent from '@/components/CodeEditor';
 
 const CodeEditorPage: React.FC = () => {
+    const router = useRouter(); // Use Next.js Router
+
     const [language, setLanguage] = useState('javascript');
     const [code, setCode] = useState('');
+
     const [stdin, setStdin] = useState('');
     const [stdout, setStdout] = useState('');
     const [stderr, setStderr] = useState('');
     const [isRunning, setIsRunning] = useState(false);
-    const textAreaRef = useRef<HTMLTextAreaElement>(null);
-    const syntaxHighlighterRef = useRef<HTMLDivElement>(null);
-    const router = useRouter(); // Use Next.js Router
 
     const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setLanguage(event.target.value);
@@ -59,57 +57,6 @@ const CodeEditorPage: React.FC = () => {
         });
     };
 
-    useEffect(() => {
-        // Sync height between textarea and syntax highlighter
-        if (textAreaRef.current) {
-            textAreaRef.current.style.height = 'auto';
-            textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
-        }
-    
-        if (syntaxHighlighterRef.current) {
-            // syntaxHighlighterRef.current.style.height = 'auto';
-            syntaxHighlighterRef.current.style.height = `${textAreaRef.current?.scrollHeight}px`;
-        }
-    }, [code]);
-
-    useEffect(() => {
-        const syncScroll = () => {
-            if (textAreaRef.current && syntaxHighlighterRef.current) {
-                syntaxHighlighterRef.current.scrollTop = textAreaRef.current.scrollTop;
-            }
-        };
-    
-        if (textAreaRef.current) {
-            textAreaRef.current.addEventListener('scroll', syncScroll);
-    
-            return () => {
-                textAreaRef.current?.removeEventListener('scroll', syncScroll);
-            };
-        }
-    }, []);
-
-    const handleTab = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (e.key === 'Tab') {
-            e.preventDefault(); // Prevent the default behavior (focusing next element)
-
-            const textarea = textAreaRef.current;
-            if (textarea) {
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-                
-                // Insert tab character at cursor position
-                setCode(code.slice(0, start) + '\t' + code.slice(end));
-
-                // Move cursor position after the tab
-                setTimeout(() => {
-                    if (textarea) {
-                        textarea.selectionStart = textarea.selectionEnd = start + 1;
-                    }
-                }, 0);
-            }
-        }
-    };
-
     const handleEditorChange = (value: string | undefined) => {
         setCode(value || '');
     };
@@ -117,12 +64,12 @@ const CodeEditorPage: React.FC = () => {
     return (
         <>
         <div className="flex flex-col md:flex-row space-y-8 md:space-x-8 p-6">
-            <aside className="w-full md:w-1/4 space-y-4">
+            {/* <aside className="w-full md:w-1/4 space-y-4">
                 <h3 className="text-lg font-semibold">Left Sidebar</h3>
                 <div className="p-4 border rounded-md">
                     <p>Some content for the left sidebar.</p>
                 </div>
-            </aside>
+            </aside> */}
 
             <div className="flex-1 space-y-6">
                 <h1 className="text-2xl font-bold mb-4">Code Editor</h1>
