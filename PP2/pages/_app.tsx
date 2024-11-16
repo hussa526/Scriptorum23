@@ -2,13 +2,24 @@ import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import Link from "next/link";
 import { AuthProvider } from "@/context/AuthContext";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+
+import { AuthContext } from "@/context/AuthContext";
 
 import { useRouter } from 'next/router';
 
 function MyApp({ Component, pageProps }: AppProps) {
+    
   const [isMenuOpen, setIsMenuOpen] = useState(false);
     const router = useRouter();  // Import useRouter from Next.js
+    const auth = useContext(AuthContext);
+
+    const handleLogout = () => {
+        if (auth?.logout) {
+            auth.logout(); // Call the logout function from the context
+        }
+        alert("Logout successful");
+    };
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -56,6 +67,9 @@ function MyApp({ Component, pageProps }: AppProps) {
                     <Link href="/template/create" className="hover:text-gray-400">New Template</Link>
 					<Link href="/execution" className="hover:text-gray-400">Code Execution</Link>
                     <Link href="/login" className="hover:text-gray-400">Login</Link>
+                    <button onClick={handleLogout} className="text-white hover:text-gray-400">
+                        Logout
+                    </button>
                 </div>
 
                 {/* Mobile Menu Icon */}
@@ -74,6 +88,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                     <Link href="/template/create" className="block py-2 hover:text-gray-400">New Template</Link>
 					<Link href="/execution" className="block py-2 hover:text-gray-400">Code Execution</Link>
                     <Link href="/login" className="block py-2 hover:text-gray-400">Login</Link>
+                    <Link href="/" className="hover:text-gray-400">Logout</Link>
                 </div>
             </nav>
         </header>

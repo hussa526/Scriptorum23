@@ -30,9 +30,13 @@ const LoginPage = () => {
       }
 
       const result = await response.json();
+      console.log(result);
       // Save user info to localStorage
       localStorage.setItem("userToken", result.token); // Example, adjust as needed
       localStorage.setItem("userId", result.id.toString()); // Ensure userId is a string
+      localStorage.setItem("username", result.username);
+      localStorage.setItem("avatar", result.avatar);
+      localStorage.setItem("token", result.token);
 
       // Set login state in the current page (SPA)
       setIsLoggedIn(true);
