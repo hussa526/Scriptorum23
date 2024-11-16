@@ -24,6 +24,7 @@ export default async function handler(req, res) {
                 forks: {
                     include: {
                         user: true,
+                        tags: true,
                     }
                 },
                 user: true,

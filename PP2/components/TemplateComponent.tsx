@@ -13,11 +13,15 @@ const TemplateComponent: React.FC<TemplateComponentProps> = ({ template }) => {
         <Link href={`/template/${template.id}`} className="relative w-[70%] bg-white border-2 border-gray-200 rounded-lg shadow-lg p-6 mb-6 hover:shadow-2xl hover:scale-105 hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 ease-in-out transform">
             {/* Title and Explanation */}
             <div className="flex items-center space-x-2">
-                <h2 className="text-left text-2xl font-semibold text-gray-800">{template.title}</h2>
+                <h2 className="text-left text-2xl font-semibold text-gray-800">{template.title} @{template.id}</h2>
                 <p className="text-gray-600">@{template.user.username}</p>
             </div>
 
-            <p className="text-left text-gray-600 text-left mb-4">{template.explanation ? template.explanation : "No Description"}</p>
+            <p 
+                className="text-left text-gray-600 mb-4 whitespace-pre-line line-clamp-4"
+            >
+                {template.explanation ? template.explanation : "No Description"}
+            </p>
 
             {/* Display tags as small boxes */}
             <div className="flex flex-wrap gap-2 mt-4 mb-4">

@@ -19,6 +19,7 @@ export default async function handler(req, res) {
                     contains: query.toLowerCase()
                 },
             },
+            take: 10,
         });
 
         return res.status(200).json(tags);
