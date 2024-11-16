@@ -1,48 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import TemplateComponent from './TemplateComponent';
+import TemplateComponent from './template/TemplateComponent';
 import BlogpostComponent from './BlogpostComponent';
 
 export default function SearchComponent() {
     const [searchQuery, setSearchQuery] = useState('');
     const [templates, setTemplates] = useState<any[]>([]);
-    const [blogposts, setBlogposts] = useState<any[]>([]); // Assuming you are also fetching blogposts
+    const [blogposts, setBlogposts] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
-    const [selectedType, setSelectedType] = useState<'templates' | 'blogposts'>('templates'); // Track selected type
+    const [selectedType, setSelectedType] = useState<'templates' | 'blogposts'>('templates');
+    const [selectedSearchField, setSelectedSearchField] = useState<'title' | 'tags' | 'content'>('title');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [limit] = useState(10);
 
-    // Handle input change for search query
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(event.target.value);
     };
 
-    // Handle search form submission
+    const handleSearchFieldChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedSearchField(event.target.value as 'title' | 'tags' | 'content');
+    };
+
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         setPage(1); // Reset to page 1
         fetchData(); // Fetch data based on search query and selected type
     };
 
-    // Fetch data based on selected type (templates or blogposts)
     const fetchData = async () => {
         setLoading(true);
-        console.log('Fetching data for:', searchQuery, 'on page', page, 'for', selectedType);
 
         try {
             let response;
+            const queryParam = `${selectedSearchField}=${searchQuery}`;
             if (selectedType === 'templates') {
-                // Fetch templates
                 response = await fetch(
-                    `http://localhost:3000/api/template?page=${page}&limit=${limit}&query=${searchQuery}`
+                    `http://localhost:3000/api/template?page=${page}&limit=${limit}&${queryParam}`
                 );
                 const data = await response.json();
                 setTemplates(data.templates);
                 setTotalPages(data.totalPages);
             } else if (selectedType === 'blogposts') {
-                // Fetch blogposts
                 response = await fetch(
-                    `http://localhost:3000/api/blogpost?page=${page}&limit=${limit}&query=${searchQuery}`
+                    `http://localhost:3000/api/blogpost?page=${page}&limit=${limit}&${queryParam}`
                 );
                 const data = await response.json();
                 setBlogposts(data.blogposts);
@@ -55,16 +55,14 @@ export default function SearchComponent() {
         }
     };
 
-    // Toggle between templates and blogposts
     const handleTypeChange = (type: 'templates' | 'blogposts') => {
         setSelectedType(type);
     };
 
     useEffect(() => {
         fetchData(); // Fetch data whenever page, search query, or selectedType changes
-    }, [page, searchQuery, selectedType]);
+    }, [page, selectedType, selectedSearchField]);
 
-    // Pagination handlers
     const goToNextPage = () => {
         if (page < totalPages) {
             setPage(prevPage => prevPage + 1);
@@ -81,25 +79,35 @@ export default function SearchComponent() {
         <div className="bg-blue-300 p-4 rounded-lg shadow-md">
             <h2 className="text-xl font-bold mb-4">Search</h2>
             
-            <div className="flex justify-center items-center w-full">
+            <div className="flex justify-center items-center w-full mb-6">
+                {/* Search field type selection */}
+                <select
+                    value={selectedSearchField}
+                    onChange={handleSearchFieldChange}
+                    className="p-3 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-700 w-40 m-3"
+                >
+                    <option value="title">Title</option>
+                    <option value="tags">Tags</option>
+                    <option value="content">Content</option>
+                </select>
+                
                 {/* Search form */}
-                <form onSubmit={handleSubmit} className="flex items-center mb-4 space-x-2 w-[500px]">
+                <form onSubmit={handleSubmit} className="flex items-center space-x-4 w-full max-w-xl">
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={handleInputChange}
-                        placeholder="Search here..."
-                        className="p-2 w-full border rounded-md"
+                        placeholder={`Search by ${selectedSearchField}...`}
+                        className="p-3 w-full border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-700 placeholder-gray-400"
                     />
                     <button
                         type="submit"
-                        className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center justify-center"
+                        className="p-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-all duration-300 ease-in-out focus:ring-2 focus:ring-blue-500 focus:outline-none flex items-center justify-center"
                     >
-                        <span className="text-lg">{'→'}</span>
+                        <span className="text-xl">→</span>
                     </button>
                 </form>
             </div>
-
 
             {/* Toggle buttons for selecting between templates or blogposts */}
             <div className="flex space-x-4 mb-4">
