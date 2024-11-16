@@ -50,14 +50,10 @@ export async function deleteTags(tags) {
                 blogposts: true,
             },
         })
-
-        if (!tagDelete) {
-            return res.status(404).json({ error: "Tag not found." });
-        }
-
+        
         // if the tag is associated with any templates or blogposts then it can't be deleted
         if (tagDelete.templates.length > 0 || tagDelete.blogposts.length > 0) {
-            return res.status(400).json({ error: "Cannot delete tag. It is still associated with templates or blog posts." });
+            // soft delete so we do nothing
         } else {
             await prisma.tags.delete({
                 where: { id: tag },
