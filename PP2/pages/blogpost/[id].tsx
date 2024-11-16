@@ -6,7 +6,7 @@ import { Blogpost } from '@/interface/Blogpost'; // Import Blogpost interface
 import { Template } from '@/interface/Template'; // Import Template interface
 import { Tag } from '@/interface/Tag'; // Import Tag interface
 import { User } from '@/interface/User';
-import TemplateComponent from '@/components/TemplateComponent'; // Import TemplateComponent
+import TemplateComponent from '@/components/template/TemplateComponent'; // Import TemplateComponent
 
 const BlogPostPage = () => {
   const router = useRouter();

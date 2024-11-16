@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Template } from '@/interface/Template';
-import MonacoEditorComponent from '@/components/CodeEditor';
 
-import EditTemplate from '@/components/EditTemplate';
-import Aside from '@/components/ForksBlogposts';
-import TemplateAside from '@/components/TemplateInfo';
-import CodeTemplate from '@/components/CodeTemplate';
+import EditTemplate from '@/components/template/EditTemplate';
+import Aside from '@/components/template/ForksBlogposts';
+import TemplateAside from '@/components/template/TemplateInfo';
+import CodeTemplate from '@/components/template/CodeTemplate';
 
 interface TemplateUpdate {
     title: string;
@@ -207,6 +206,7 @@ const TemplatePage: React.FC = () => {
                 ) : (
                     <TemplateAside
                         template={template}
+                        canEdit={canEdit}
                         editedCode={editedCode}
                         setIsEditingTemplate={setIsEditingTemplate}
                     />
