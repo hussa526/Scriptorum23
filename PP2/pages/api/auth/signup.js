@@ -14,6 +14,8 @@ export default async function handler (req, res) {
         return res.status(400).json({ error: "Required Fields empty." });
     }
 
+    console.log(firstName, lastName, username, password, avatar);
+
     // username must be unique
 
     try {
@@ -41,8 +43,9 @@ export default async function handler (req, res) {
                 email: true,
                 firstName: true,
                 lastName: true,
-                role: true
-              },
+                role: true,
+                avatar: true,
+            },
         });
     
         return res.status(200).json(user);
