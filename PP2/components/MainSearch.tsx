@@ -148,7 +148,7 @@ export default function SearchComponent() {
                 )}
 
                 {/* No Results Message */}
-                {(!loading && selectedType === 'blogposts' && blogposts.length === 0) || (selectedType === 'templates' && templates.length === 0) ? (
+                {(!loading && selectedType === 'blogposts' && blogposts.length === 0) || (selectedType === 'templates' && templates?.length === 0) ? (
                     <div className="flex flex-col items-center">
                         <div
                             key={"none"}
