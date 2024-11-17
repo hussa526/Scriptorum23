@@ -2,6 +2,7 @@ import fs from 'fs';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
 
 const execPromise = promisify(exec);
 
@@ -23,7 +24,7 @@ const dockerImages = {
 
 // Create a temporary file for the code
 function temporaryFile(language) {
-    return language === 'java' ? `Main` : `temp_${language}_${uuidv4()}`;
+    return language === 'java' ? `Main` : `temp_${language}`; //_${uuidv4()}`;
 }
 
 function safeUnlink(file) {
@@ -34,7 +35,7 @@ function safeUnlink(file) {
 
 async function imageExists(imageTag) {
     try {
-        const { stdout } = await execPromise(`sudo docker images -q ${imageTag}`);
+        const { stdout } = await execPromise(`docker images -q ${imageTag}`);
         return stdout.trim() !== ''; // Returns true if image exists, false otherwise
     } catch (error) {
         console.error('Error checking image:', error);
@@ -51,7 +52,6 @@ export async function codeExecution(language, code, stdin) {
                       language === 'java' ? '.java' :
                       language === 'go' ? '.go' :
                       language === 'haskell' ? '.hs' :
-                      language === 'lua' ? '.lua' :
                       language === 'perl' ? '.pl' :
                       language === 'php' ? '.php' :
                       language === 'r' ? '.R' :
@@ -64,28 +64,45 @@ export async function codeExecution(language, code, stdin) {
         return { error: "Unsupported language" };
     }
 
-    const compiledFile = temporaryFile(language);
+    const tmpPath = path.join(process.cwd(), 'tmp');
+    if (!fs.existsSync(tmpPath)) {
+        fs.mkdirSync(tmpPath, { recursive: true });
+    }
+    const tmpDir = path.join(process.cwd(), 'tmp', `run_${uuidv4()}`);
+    if (!fs.existsSync(tmpDir)) {
+        fs.mkdirSync(tmpDir, { recursive: true });
+    }
+
+    const compiledFile = `${temporaryFile(language)}`;
     const sourceFile = `${compiledFile}${extension}`;
     const inputFile = stdin ? `${compiledFile}_input.txt` : undefined;
     const outputFile = `${compiledFile}_output.txt`;
     const errorFile = `${compiledFile}_error.txt`;
 
     const imageTag = `${language}_image`;
+    const containerName = `container_${uuidv4()}`;
+
+    console.log('Temporary directory:', tmpDir);
+    console.log('Source file path:', sourceFile);
+    console.log('Compiled file name:', compiledFile);
+    console.log('Ouput file path:', outputFile);
+    console.log('Error file name:', errorFile);
 
     try {
         // Write code and input to files
-        fs.writeFileSync(sourceFile, code);
-        if (stdin) fs.writeFileSync(inputFile, stdin);
+        fs.writeFileSync(`${tmpDir}/${sourceFile}`, code);
+        if (stdin) fs.writeFileSync(`${tmpDir}/${inputFile}`, stdin);
 
         const imageExist = await imageExists(imageTag);
         if (!imageExist) {
             // Build the Docker image if it doesn't exist
-            const dockerBuildCommand = `sudo docker build -t ${imageTag} -f docker/Dockerfile.${language} .`;
+            const dockerBuildCommand = `docker build -t ${imageTag} -f docker/Dockerfile.${language} .`;
+            console.log(dockerBuildCommand);
             await execPromise(dockerBuildCommand);
         }
 
-        const dockerRunCommand = `sudo docker run --rm --name ${compiledFile} \
-        -v "${process.cwd()}":/usr/src/app \
+        const dockerRunCommand = `docker run --rm --name ${containerName} \
+        -v "${tmpDir}":/usr/src/app \
         -w /usr/src/app \
         --memory="512m" \
         --memory-swap="512m" \
@@ -96,36 +113,39 @@ export async function codeExecution(language, code, stdin) {
         await execPromise(dockerRunCommand);
 
         // Read the output and errors after execution
-        const stdout = fs.existsSync(outputFile) ? fs.readFileSync(outputFile, 'utf-8') : null;
-        const stderr = fs.existsSync(errorFile) ? fs.readFileSync(errorFile, 'utf-8') : null;
+        const stdout = fs.existsSync(`${tmpDir}/${outputFile}`) ? fs.readFileSync(`${tmpDir}/${outputFile}`, 'utf-8') : null;
+        const stderr = fs.existsSync(`${tmpDir}/${errorFile}`) ? fs.readFileSync(`${tmpDir}/${errorFile}`, 'utf-8') : null;
 
         return { stdout, stderr: stderr };
     } catch (error) {
-        const stdout = fs.existsSync(outputFile) ? fs.readFileSync(outputFile, 'utf-8') : null;
-        const stderr = fs.existsSync(errorFile) ? fs.readFileSync(errorFile, 'utf-8') : null;
+        const stdout = fs.existsSync(`${tmpDir}/${outputFile}`) ? fs.readFileSync(`${tmpDir}/${outputFile}`, 'utf-8') : null;
+        const stderr = fs.existsSync(`${tmpDir}/${errorFile}`) ? fs.readFileSync(`${tmpDir}/${errorFile}`, 'utf-8') : null;
 
         return { stdout: stdout, stderr: stderr, server: error.message };
     } finally {
         // Cleanup
-        safeUnlink(compiledFile);
-        safeUnlink(sourceFile);
-        safeUnlink(inputFile);
-        safeUnlink(outputFile);
-        safeUnlink(errorFile);
+        safeUnlink(`${tmpDir}/${compiledFile}`);
+        safeUnlink(`${tmpDir}/${sourceFile}`);
+        safeUnlink(`${tmpDir}/${inputFile}`);
+        safeUnlink(`${tmpDir}/${outputFile}`);
+        safeUnlink(`${tmpDir}/${errorFile}`);
 
         if (language === 'haskell') {
             const haskellHiFile = sourceFile.replace(/\.hs$/, '.hi');
             const haskellOFile = sourceFile.replace(/\.hs$/, '.o');
             
-            safeUnlink(haskellHiFile);
-            safeUnlink(haskellOFile);
+            safeUnlink(`${tmpDir}/${haskellHiFile}`);
+            safeUnlink(`${tmpDir}/${haskellOFile}`);
         }
 
         if (language === 'java') {
             const javaClassFile = `${compiledFile}.class`;
 
-            safeUnlink(javaClassFile);
+            safeUnlink(`${tmpDir}/${javaClassFile}`);
         }
+
+        fs.rmSync(tmpDir, { recursive: true, force: true });
+        fs.rmSync(tmpPath, { recursive: true, force: true });
     }
 }
 
