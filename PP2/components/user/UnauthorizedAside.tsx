@@ -5,7 +5,7 @@ export default function UnauthorizedAside() {
 	const router = useRouter();
 
 	return (
-        <div className="flex flex-col items-center justify-start min-h-screen bg-gray-100 py-12">
+        <div className="flex flex-col items-center justify-start bg-gray-100">
             <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg space-y-6">
                 <p className="text-gray-700 text-xl font-semibold text-center">
                     Create an account or login to view your profile.
