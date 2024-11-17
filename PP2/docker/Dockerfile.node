@@ -6,4 +6,4 @@ WORKDIR /usr/src/app
 # Install any dependencies (if needed)
 # RUN npm install some-package
 
-CMD ["node", "temp_javascript.js"]
+CMD ["node"]

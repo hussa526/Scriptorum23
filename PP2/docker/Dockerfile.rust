@@ -4,8 +4,5 @@ FROM rust:1.68
 # Set working directory
 WORKDIR /usr/src/app
 
-# Copy Rust code into the container
-COPY . .
-
 # Default command to compile and run Rust code
-CMD ["cargo", "run"]
+CMD ["cargo"]
