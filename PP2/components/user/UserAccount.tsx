@@ -92,7 +92,7 @@ export default function UserAccount() {
                     </div>
                 </div>
             ) : (
-                <div>Please log in to view your profile.</div>  // Display a message when not authenticated
+                <div>Create an account or login to view your profile.</div>  // Display a message when not authenticated
             )}
         </>
 	);

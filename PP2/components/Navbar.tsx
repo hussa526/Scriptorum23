@@ -66,7 +66,7 @@ export default function Navbar() {
                                 Logout
                             </button>
                         ) : (
-                            <Link href="/login" className="hover:text-gray-400">Login</Link>
+                            <Link href="/user/login" className="hover:text-gray-400">Login</Link>
                         )}
                     </div>
 
@@ -90,7 +90,7 @@ export default function Navbar() {
                                 Logout
                             </button>
                         ) : (
-                            <Link href="/login" className="hover:text-gray-400">Login</Link>
+                            <Link href="/user/login" className="hover:text-gray-400">Login</Link>
                         )}
                     </div>
                 </nav>

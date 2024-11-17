@@ -1,23 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import UserAccount from '@/components/user/UserAccount';
+import UnauthorizedAside from '@/components/user/UnauthorizedAside';
+import { AuthContext } from '@/context/AuthContext';
 
 export default function Sidebar() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-    useEffect(() => {
-        // Check for token in localStorage or cookies
-        const token = localStorage.getItem('userToken'); // Replace with your token logic
-        if (token) {
-            setIsLoggedIn(true);
-        }
-    }, []);
+    const auth = useContext(AuthContext);
 
     return (
         <aside className="w-full bg-gray-100 p-4 rounded-lg shadow-md">
             {/* User Account */}
-            {isLoggedIn && (
+            {auth?.isAuthenticated ? (
                 <div className="mb-6">
                     <UserAccount />
+                </div>
+            ) : (
+                <div className="mb-6">
+                    <UnauthorizedAside />
                 </div>
             )}
         </aside>

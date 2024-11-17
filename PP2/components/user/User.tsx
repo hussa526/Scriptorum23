@@ -1,6 +1,4 @@
-import { useEffect, useState, useContext } from 'react';
-import { useRouter } from 'next/router';
-import { AuthContext } from '@/context/AuthContext';
+import { useState } from 'react';
 
 import { User } from '@/interface/User';
 
@@ -10,10 +8,14 @@ interface AccountProps {
     handleEditUser: () => void;
 }
 
-const Account = ({ user, handleEditUser, loading }: AccountProps) => {
-    const auth = useContext(AuthContext);
-
+const Account = ({ user, handleEditUser, loading, }: AccountProps) => {
     const [showPopup, setShowPopup] = useState(false);
+    // const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // State to handle delete confirmation
+
+    // const handleConfirmDelete = () => {
+    //     setShowDeleteConfirm(false); // Close the confirmation
+    //     handleDeleteUser(); // Call the delete handler
+    // };
 
     return (
         <div className="bg-white p-6 rounded-lg shadow-md w-96">
@@ -64,6 +66,13 @@ const Account = ({ user, handleEditUser, loading }: AccountProps) => {
                                         >
                                             Edit Account
                                         </button>
+                                        {/* Delete Account Button */}
+                                        {/* <button
+                                            className="w-full bg-red-500 text-white py-2 px-4 rounded mt-2"
+                                            onClick={() => setShowDeleteConfirm(true)} // Show confirmation before deletion
+                                        >
+                                            Delete Account
+                                        </button> */}
                                     </div>
                                 </div>
                             )}
@@ -92,6 +101,29 @@ const Account = ({ user, handleEditUser, loading }: AccountProps) => {
             ) : (
                 <div className="text-center text-gray-500">No user data found.</div>
             )}
+
+            {/* Delete Account Confirmation Modal */}
+            {/* {showDeleteConfirm && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-md w-96">
+                        <h3 className="text-lg font-semibold text-center text-gray-700 mb-4">Are you sure you want to delete your account?</h3>
+                        <div className="flex justify-around">
+                            <button
+                                className="bg-gray-500 text-white py-2 px-4 rounded"
+                                onClick={() => setShowDeleteConfirm(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="bg-red-500 text-white py-2 px-4 rounded"
+                                onClick={handleConfirmDelete}
+                            >
+                                Yes, Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )} */}
         </div>
     );
 };
