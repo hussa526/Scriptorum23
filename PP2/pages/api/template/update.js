@@ -1,7 +1,8 @@
 import prisma from "@/utils/prismaclient"
 
-import { validateTags } from "@/utils/template"
 import { authUser } from "@/utils/auth";
+import { findTags } from "@/utils/tags";
+import { deleteTags } from "@/utils/tags";
 
 export default async function handler(req, res) {
     if (req.method !== "PUT") {
@@ -55,19 +56,8 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: "Code must be a string."});
         }
 
-        // validate tags that are added and tags that are removed
-        const invalidTagIds = await validateTags(tagsAdded);
-        if (invalidTagIds.length > 0) {
-            return res.status(400).json({ error: `Invalid tag IDs: ${invalidTagIds.join(', ')}` });
-        }
-
-        const invalidRemovedTagIds = await validateTags(tagsRemoved);
-        if (invalidRemovedTagIds.length > 0) {
-            return res.status(400).json({ error: `Invalid tag IDs: ${invalidRemovedTagIds.join(', ')}` });
-        }
-
-        const tagsToConnect = tagsAdded.map(tagId => ({ id: tagId }));
-        const tagsToDisconnect = tagsRemoved.map(tagId => ({ id: tagId }));
+        const tagsToConnect = await findTags(tagsAdded);
+        const tagsToDisconnect = await findTags(tagsRemoved);
 
         // update the template, title, explanation, code, extension, and tags
         const updTemplate = await prisma.template.update({
@@ -78,16 +68,29 @@ export default async function handler(req, res) {
                 code: code,
                 extension: extension,
                 tags: {
-                    connect: tagsToConnect.length > 0 ? tagsToConnect : undefined,
-                    disconnect: tagsToDisconnect.length > 0 ? tagsToDisconnect : undefined
+                    connect: tagsToConnect.length > 0 ? tagsToConnect.map(id => ({ id })) : undefined,
+                    disconnect: tagsToDisconnect.length > 0 ? tagsToDisconnect.map(id => ({ id })) : undefined,
                 },
             },
             include: {
-                blogposts: true,
+                blogposts: {
+                    include: {
+                        user: true,
+                    }
+                },
                 tags: true,
-                forks: true,
+                forks: {
+                    include: {
+                        user: true,
+                        tags: true,
+                    }
+                },
+                user: true,
             }
         });
+
+        // formal delete of tags that might be "orphaned"
+        await deleteTags(tagsToDisconnect);
 
         return res.status(200).json(updTemplate);
     } catch (error) {

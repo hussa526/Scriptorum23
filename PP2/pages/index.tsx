@@ -1,9 +1,8 @@
-import Image from "next/image";
 import localFont from "next/font/local";
 
-import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import MainSearch from '@/components/MainSearch';
+import HomeAside from '@/components/user/HomeAside';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -20,7 +19,6 @@ const geistMono = localFont({
 export default function Home() {
   return (
     <>
-      <Navbar />
       <div className="bg-gray-50 min-h-screen flex flex-col">
         {/* Main Content Section */}
         <div className="grid pt-16 px-8 gap-6 md:grid-cols-12 grid-cols-1">
@@ -30,16 +28,13 @@ export default function Home() {
             <p className="mt-2 text-lg">The best place to search, discover, and create.</p>
           </div>
 
-          {/* Right Sidebar */}
-          <div className="col-span-12 md:col-span-4">
-            <div className="bg-white rounded-lg p-6 shadow-lg">
-              <h3 className="text-xl font-semibold text-gray-800">Right Sidebar</h3>
-              <p className="mt-2 text-gray-600">Some important content can go here.</p>
-            </div>
+          {/* Left Sidebar */}
+          <div className="col-span-12 md:col-span-3">
+            <HomeAside />
           </div>
 
           {/* Sidebar and Main Content */}
-          <div className="col-span-12 md:col-span-8 flex flex-col gap-6">
+          <div className="col-span-12 md:col-span-9 flex flex-col gap-6">
             {/* Main Search */}
             <div className="bg-white rounded-lg p-6 shadow-lg">
               <MainSearch />

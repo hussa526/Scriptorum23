@@ -15,9 +15,19 @@ export default async function handler(req, res) {
         const template = await prisma.template.findUnique({
             where: { id: tempId },
             include: {
-                blogposts: true,
+                blogposts: {
+                    include: {
+                        user: true,
+                    }
+                },
                 tags: true,
-                forks: true,
+                forks: {
+                    include: {
+                        user: true,
+                        tags: true,
+                    }
+                },
+                user: true,
             }
         });
 

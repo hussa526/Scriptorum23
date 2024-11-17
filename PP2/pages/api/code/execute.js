@@ -1,4 +1,5 @@
-import { codeExecution } from "@/utils/execution"
+// import { codeExecution } from "@/utils/execution"
+import { codeExecution } from "../../../utils/dockerExecution";
 
 export default async function handler(req, res) {
     if (req.method !== "POST") {
@@ -13,6 +14,8 @@ export default async function handler(req, res) {
         if (result.error) {
             return res.status(400).json(result);
         }
+
+        console.log(result);
 
         return res.status(200).json(result);
     } catch (error) {

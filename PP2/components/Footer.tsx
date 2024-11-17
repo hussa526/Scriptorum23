@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function Footer() {
     return (
         <footer id="footer" className="d-flex flex-justify-center flex-items-center flex-column-reverse flex-lg-row flex-wrap flex-lg-nowrap">

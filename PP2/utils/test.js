@@ -22,6 +22,10 @@ async function test() {
     let jsResult = await codeExecution('javascript', jsCode);
     console.log('JavaScript Result:', jsResult);
 
+    jsCode = `console.log("Hello from JavaScript!");\nasdfasdf;`;
+    jsResult = await codeExecution('javascript', jsCode);
+    console.log('JavaScript Result:', jsResult);
+
     // // Test C Code
     let cCode = `#include <stdio.h>\nint main() { printf("Hello from C!\\n"); return 0; }`;
     let cResult = await codeExecution('c', cCode);
