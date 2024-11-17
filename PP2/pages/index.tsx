@@ -23,10 +23,10 @@ export default function Home() {
         {/* Main Content Section */}
         <div className="grid pt-16 px-8 gap-6 md:grid-cols-12 grid-cols-1">
           {/* Header */}
-          <div className="bg-blue-600 text-white text-center py-6 rounded-lg shadow-lg col-span-12">
+          {/* <div className="bg-blue-600 text-white text-center py-6 rounded-lg shadow-lg col-span-12">
             <h1 className="text-3xl font-semibold">Welcome to Our Platform</h1>
             <p className="mt-2 text-lg">The best place to search, discover, and create.</p>
-          </div>
+          </div> */}
 
           {/* Left Sidebar */}
           <div className="col-span-12 md:col-span-3">
