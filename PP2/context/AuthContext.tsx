@@ -8,6 +8,7 @@ type AuthContextType = {
 	token: string | null;
 	login: (token: string, userId: string, username: string, avatar: string) => void; // Include username in login
 	logout: () => void;
+	update: (username: string, avatar: string) => void;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,6 +35,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			setToken(token);
 		}
 	}, []);
+
+	const update = (username: string, avatar: string) => {
+		localStorage.setItem("username", username);
+		localStorage.setItem("avatar", avatar);
+		setUsername(username);
+		setAvatar(avatar);
+	}
 
 	const login = (token: string, userId: string, username: string, avatar: string) => {
 		localStorage.setItem("userToken", token);
@@ -63,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	};
 
 	return (
-		<AuthContext.Provider value={{ isAuthenticated, userId, username, avatar, token, login, logout }}>
+		<AuthContext.Provider value={{ isAuthenticated, userId, username, avatar, token, login, logout, update }}>
 			{children}
 		</AuthContext.Provider>
 	);

@@ -88,6 +88,8 @@ const UserPage = () => {
             console.log('User updated successfully:', data);
     
             setUser(data);
+
+            auth?.update(data.username, data.avatar);
             
             router.push(`/user/${data.username}`);
         } catch (error) {
