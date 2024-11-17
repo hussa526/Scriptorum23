@@ -131,7 +131,7 @@ export default function SearchComponent() {
             {/* Display templates or blogposts based on selectedType */}
             <div className="mt-4">
                 {/* Templates */}
-                {!loading && selectedType === 'templates' && templates.length > 0 && (
+                {!loading && selectedType === 'templates' && templates?.length > 0 && (
                     <div className="flex flex-col items-center">
                         {templates.map((template) => (
                             <TemplateComponent key={template.id} template={template} />
