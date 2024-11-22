@@ -33,10 +33,14 @@ export default async function handler(req, res) {
         }
         
         filters.tags = {
-            some: {    
-                tag: { in: tagNames },
+            some: {
+                OR: tagNames.map(tag => ({
+                    tag: {
+                        contains: tag,
+                    },
+                })),
             },
-        }
+        };
     }
 
     // filter for code content
