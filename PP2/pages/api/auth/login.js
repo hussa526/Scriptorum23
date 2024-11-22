@@ -26,8 +26,8 @@ export default async function handler(req, res) {
 		}
 	
 		const token = generateToken(user.id, user.username, user.role);
-	
-		return res.status(200).json({ token, id: user.id, username, avatar: user.avatar });
+		
+		return res.status(200).json({ token, id: user.id, username, avatar: user.avatar, role: user.role });
 	} catch (error) {
 		console.log(error.message);
 		return res.status(500).json({ error: "Error login in user." });

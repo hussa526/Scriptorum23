@@ -1,5 +1,7 @@
 import prisma from "@/utils/prismaclient";
 
+import { authUser } from '@/utils/auth';
+
 export default async function handler (req, res) {
     if (req.method !== "GET") {
         return res.status(405).json({ error: "Method not allowed." });
@@ -14,6 +16,7 @@ export default async function handler (req, res) {
         // authenticate user
         const result = await authUser(authHeader);
         if (result.success === false) {
+            console.log(result.error);
             return res.status(result.status).json({ error: result.error });
         }
 
@@ -24,24 +27,43 @@ export default async function handler (req, res) {
         }
 
         const blogposts = await prisma.blogpost.findMany({
+            where: {
+                reports: {
+                    some: {}, // Ensures at least one report exists for the blogpost
+                },
+            },
             include: {
-                reports: true,
+                reports: {
+                    include: {
+                        user: true,
+                    }
+                },
             },
             orderBy: {
                 reports: {
-                _count: 'desc',  // Sort by the number of reports in descending order
+                    _count: 'desc', // Sort by the number of reports in descending order
                 },
             },
         });
+        
 
         const comments = await prisma.comment.findMany({
+            where: {
+                reports: {
+                    some: {}, // Ensures at least one report exists for the blogpost
+                },
+            },
             include: {
-              reports: true,
+                reports: {
+                    include: {
+                        user: true,
+                    }
+                },
             },
             orderBy: {
-              reports: {
-                _count: 'desc',  // Sort by the number of reports in descending order
-              },
+                reports: {
+                    _count: 'desc',  // Sort by the number of reports in descending order
+                },
             },
         });
 
