@@ -12,4 +12,4 @@ WORKDIR /usr/src/app
 # EXPOSE 8080
 
 # Default command to run Node.js application
-CMD ["node", "index.js"]
+CMD ["node"]

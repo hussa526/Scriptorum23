@@ -28,21 +28,27 @@ check_command() {
   echo
 }
 
-# Check for Node.js and npm installation
-check_command node "Node.js and npm"
+check_command docker "Docker"
 
-# Check for Python installation
-check_command python3 "Python 3"
+check_docker_ps() {
+  docker_ps_output="$(docker ps)"
+  if [ $? -ne 0 ]; then
+    echo "Cannot run docker command: docker ps"
+    echo "Possibly you need to add docker to your groups"
+    echo "$docker_ps_output"
+    exit 1
+  fi
+  echo "Docker is running"
+  echo "$docker_ps_output"
+  echo
+}
 
-# Check for C compiler (GCC)
-check_command gcc "GCC (C compiler)"
+check_docker_ps
 
-# Check for C++ compiler (G++)
-check_command g++ "G++ (C++ compiler)"
-
-# Check for Java installation
-check_command java "Java Runtime Environment"
-check_command javac "Java Compiler"
+# docker ps
+echo "-> Building docker images..."
+node ./startup/buildImages.js
+echo
 
 # Create admin user
 echo "-> Creating admin user..."

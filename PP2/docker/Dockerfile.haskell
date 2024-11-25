@@ -4,8 +4,5 @@ FROM haskell:8.10
 # Set working directory
 WORKDIR /usr/src/app
 
-# Copy Haskell code into the container
-COPY . .
-
 # Default command to compile and run Haskell code
-CMD ["ghc", "Main.hs", "-o", "main", "&&", "./main"]
+CMD ["ghc"]

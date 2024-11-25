@@ -3,8 +3,5 @@ FROM python:3.9
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Copy the Python script into the container
-COPY temp_python.py .
-
-# Run the Python script
-CMD ["python3", "temp_python.py"]
+# Default command for the container
+CMD ["python3"]
