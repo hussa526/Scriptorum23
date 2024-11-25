@@ -77,7 +77,7 @@ const CreateAccount = () => {
             }
 
             const result = await res.json();
-            auth?.login(result.token, result.id.toString(), result.username, result.avatar);
+            auth?.login(result.token, result.id.toString(), result.username, result.avatar, result.role);
 
             // auth?.login();
 

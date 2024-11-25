@@ -58,15 +58,26 @@ export default function Navbar() {
                     {/* Desktop Navigation Links */}
                     <div id="nav-links" className="hidden md:flex space-x-6">
                         <Link href="/" className="hover:text-gray-400">Home</Link>
-                        <Link href="/blogpost/create" className="hover:text-gray-400">New Blogpost</Link>
-                        <Link href="/template/create" className="hover:text-gray-400">New Template</Link>
-                        <Link href="/execution" className="hover:text-gray-400">Code Execution</Link>
-                        {auth?.isAuthenticated ? (
-                            <button onClick={handleLogout} className="text-white hover:text-gray-400">
-                                Logout
-                            </button>
+
+                        {auth?.role === 'admin' ? (
+                            auth?.isAuthenticated && (
+                                <button onClick={handleLogout} className="text-white hover:text-gray-400">
+                                    Logout
+                                </button>
+                            )
                         ) : (
-                            <Link href="/user/login" className="hover:text-gray-400">Login</Link>
+                            <>
+                                <Link href="/blogpost/create" className="hover:text-gray-400">New Blogpost</Link>
+                                <Link href="/template/create" className="hover:text-gray-400">New Template</Link>
+                                <Link href="/execution" className="hover:text-gray-400">Code Execution</Link>
+                                {auth?.isAuthenticated ? (
+                                    <button onClick={handleLogout} className="text-white hover:text-gray-400">
+                                        Logout
+                                    </button>
+                                ) : (
+                                    <Link href="/user/login" className="hover:text-gray-400">Login</Link>
+                                )}
+                            </>
                         )}
                     </div>
 
@@ -82,16 +93,27 @@ export default function Navbar() {
                     {/* Mobile Navigation Links */}
                     <div id="nav-links-sm" className={`${isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'} absolute top-full left-0 w-full bg-gray-700 text-white md:hidden p-6 transition-all duration-300 ease-in-out`}>
                         <Link href="/" className="block py-2 hover:text-gray-400">Home</Link>
-                        <Link href="/blogpost/create" className="block py-2 hover:text-gray-400">New Blogpost</Link>
-                        <Link href="/template/create" className="block py-2 hover:text-gray-400">New Template</Link>
-                        <Link href="/execution" className="block py-2 hover:text-gray-400">Code Execution</Link>
-                        {auth?.isAuthenticated ? (
-                            <button onClick={handleLogout} className="text-white hover:text-gray-400">
-                                Logout
-                            </button>
+
+                        {auth?.role === 'admin' ? (
+                            auth?.isAuthenticated && (
+                                <button onClick={handleLogout} className="text-white hover:text-gray-400">
+                                    Logout
+                                </button>
+                            )
                         ) : (
-                            <Link href="/user/login" className="hover:text-gray-400">Login</Link>
-                        )}
+                            <>
+                                <Link href="/blogpost/create" className="block py-2 hover:text-gray-400">New Blogpost</Link>
+                                <Link href="/template/create" className="block py-2 hover:text-gray-400">New Template</Link>
+                                <Link href="/execution" className="block py-2 hover:text-gray-400">Code Execution</Link>
+                                {auth?.isAuthenticated ? (
+                                    <button onClick={handleLogout} className="text-white hover:text-gray-400">
+                                        Logout
+                                    </button>
+                                ) : (
+                                    <Link href="/user/login" className="hover:text-gray-400">Login</Link>
+                                )}
+                            </>
+                        )}                        
                     </div>
                 </nav>
             </header>

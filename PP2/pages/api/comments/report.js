@@ -40,28 +40,37 @@ export default async function handler(req, res) {
         }
 
         // create a report for this comment
-        await prisma.report.create({
+        const report = await prisma.report.create({
             data: {
                 userId: user.id,
                 explanation: explanation,
-                blogpostId: comment.blogpostId,
                 commentId: commentId
             }
         });
 
-        // update the comment
-        const reportedComment = await prisma.comment.update({
-            where: { id: commentId },
-            data: {
-                isHidden: true,
-            },
-            include: {
-                replies: true,
-                votes: true,
-            }
-        });
+        return res.status(200).json(report);
 
-        return res.status(200).json(reportedComment);
+        // await prisma.report.create({
+        //     data: {
+        //         userId: user.id,
+        //         explanation: explanation,
+        //         commentId: commentId
+        //     }
+        // });
+
+        // // update the comment
+        // const reportedComment = await prisma.comment.update({
+        //     where: { id: commentId },
+        //     data: {
+        //         isHidden: true,
+        //     },
+        //     include: {
+        //         replies: true,
+        //         votes: true,
+        //     }
+        // });
+
+        // return res.status(200).json(reportedComment);
     } catch (error) {
         console.log(error.message);
         return res.status(500).json({ error: "Error reporting comment." });

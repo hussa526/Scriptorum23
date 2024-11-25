@@ -20,7 +20,7 @@ export default async function handler(req, res) {
 
     const user = result.user;
 
-    const { title, explanation, code = '', extension, tags } = req.body;
+    const { title, explanation, code = '', extension, tags = [] } = req.body;
 
     // validate inputs
     if (!title || typeof title !== "string") {
@@ -31,7 +31,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Missing template code language."})
     }
     
-    const tagList = tags.split(',').map(tag => tag.trim());
+    const tagList = tags.length === 0 ? [] : tags.split(',').map(tag => tag.trim());
 
     try {
         let tagsId = await findTags(tagList);

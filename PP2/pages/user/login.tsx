@@ -42,7 +42,7 @@ const LoginPage = () => {
 		// localStorage.setItem("username", result.username);
 		// localStorage.setItem("avatar", result.avatar);
 
-		auth?.login(result.token, result.id.toString(), result.username, result.avatar);
+		auth?.login(result.token, result.id.toString(), result.username, result.avatar, result.role);
 
 		// Set login state in the current page (SPA)
 		setIsLoggedIn(true);
