@@ -154,6 +154,36 @@
 						}
 					},
 					"response": []
+				},		
+				{
+					"name": "Update 1",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"joe\",\n    \"lastName\": \"Jam\",\n    \"username\": \"njk\",\n    \"email\": \"obama@gmail.com\",\n    \"avatar\": \"asdf\",\n    \"role\": \"user\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/auth/update",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"auth",
+								"update"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

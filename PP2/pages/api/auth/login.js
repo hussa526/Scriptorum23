@@ -18,6 +18,10 @@ export default async function handler(req, res) {
 			where: { username },
 		});
 
+		if (!user) {
+			return res.status(401).json({ message: "Invalid credentials." });
+		}
+
 		const passwordVerified = await comparePassword(password, user.password);
 	
 		if (!user || !passwordVerified) { 
