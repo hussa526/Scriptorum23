@@ -1,5 +1,7 @@
 // pages/create-blogpost.tsx
 
+// Created using ChatGPT by Anna Myllyniemi
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { Template } from '@/interface/Template';
@@ -8,20 +10,29 @@ import { Tag } from '@/interface/Tag';
 const CreateBlogPost = () => {
   const router = useRouter();
 
+  // Blog post states
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [templates, setTemplates] = useState<Template[]>([]);
-  const [selectedTags, setSelectedTags] = useState<number[]>([]);
-  const [selectedTemplates, setSelectedTemplates] = useState<number[]>([]);
-  const [newTag, setNewTag] = useState("");
+
+  // Tags
   const [allTags, setAllTags] = useState<Tag[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]); // Store tag names
+  const [newTag, setNewTag] = useState("");
+  const [searchResults, setSearchResults] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Templates
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [selectedTemplates, setSelectedTemplates] = useState<number[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchField, setSearchField] = useState<"title" | "tags" | "codeContent">("title");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalTemplates, setTotalTemplates] = useState(0);
+
   const [error, setError] = useState<string | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Track login status
-  const [searchQuery, setSearchQuery] = useState(""); // Track search query for templates
-  const [page, setPage] = useState(1); // Track current page for pagination
-  const [limit, setLimit] = useState(10); // Set the limit per page
-  const [totalTemplates, setTotalTemplates] = useState(0); // Total number of templates for pagination
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
 
   useEffect(() => {
     // Fetch existing tags from the API
@@ -34,15 +45,30 @@ const CreateBlogPost = () => {
     const userToken = localStorage.getItem("userToken"); // Example check, adjust as needed
     setIsLoggedIn(!!userToken);
   }, []);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (newTag.length > 0) {
+        searchTags(newTag);
+      } else {
+        setSearchResults([]); // Clear results when input is empty
+      }
+    }, 200);
+  
+    return () => clearTimeout(timer);
+  }, [newTag]);
+  
 
   useEffect(() => {
     // Fetch templates from the API with pagination and search query
     const fetchTemplates = async () => {
       try {
-        const response = await fetch(`/api/template?page=${page}&limit=${limit}&codeContent=${searchQuery}`);
+        const response = await fetch(
+          `/api/template?page=${page}&limit=${limit}&${searchField}=${searchQuery}`
+        );
         const data = await response.json();
         setTemplates(data.templates);
-        setTotalTemplates(data.totalCount); // Assume the response includes the total number of templates
+        setTotalTemplates(data.totalCount); // Assume the API includes the total count
       } catch (err) {
         console.error("Error fetching templates:", err);
       }
@@ -57,9 +83,10 @@ const CreateBlogPost = () => {
     const newBlogPost = {
       title,
       content,
-      tagsId: selectedTags,
+      tags: selectedTags.join(', '), // Pass tags as a comma-separated string
       templatesId: selectedTemplates,
     };
+    
 
     try {
 
@@ -95,14 +122,32 @@ const CreateBlogPost = () => {
     }
   };
 
-  const handleTagSelection = (tagId: number) => {
-    setSelectedTags((prevSelectedTags) => {
-      if (prevSelectedTags.includes(tagId)) {
-        return prevSelectedTags.filter((id) => id !== tagId);
-      }
-      return [...prevSelectedTags, tagId];
-    });
+
+  const searchTags = async (query: string) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/tags/search?query=${query}`);
+      const data = await response.json();
+      setSearchResults(data.map((tag: Tag) => tag.tag)); // Map to tag names
+    } catch (err) {
+      console.error("Error fetching tags:", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
+  
+  const addTag = (tag: string) => {
+    if (tag && !selectedTags.includes(tag)) {
+      setSelectedTags([...selectedTags, tag]);
+      setNewTag("");
+      setSearchResults([]);
+    }
+  };
+  
+  const removeTag = (tag: string) => {
+    setSelectedTags(selectedTags.filter((t) => t !== tag));
+  };
+  
 
   const handleTemplateSelection = (templateId: number) => {
     setSelectedTemplates((prevSelectedTemplates) => {
@@ -143,7 +188,7 @@ const CreateBlogPost = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-md">
+    <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-md m-8 mt-24">
       <h1 className="text-2xl font-bold mb-4">Create Blog Post</h1>
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
@@ -188,54 +233,74 @@ const CreateBlogPost = () => {
 
           <div>
             <label className="block font-semibold text-sm text-gray-700">Tags</label>
-            <div className="space-y-2">
-              {allTags.map((tag) => (
-                <div key={tag.id} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id={`tag-${tag.id}`}
-                    checked={selectedTags.includes(tag.id)}
-                    onChange={() => handleTagSelection(tag.id)}
-                    className="mr-2"
-                  />
-                  <label htmlFor={`tag-${tag.id}`} className="text-sm text-gray-600">{tag.tag}</label>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {selectedTags.map((tag, index) => (
+                <div key={index} className="flex items-center bg-blue-200 px-3 py-1 rounded-full text-sm text-blue-700">
+                  {tag}
+                  <button className="ml-2 text-red-500" onClick={() => removeTag(tag)}>
+                    X
+                  </button>
                 </div>
               ))}
             </div>
 
-            <div className="mt-4">
-              <label htmlFor="new-tag" className="block font-semibold text-sm text-gray-700">Create New Tag</label>
-              <div className="flex space-x-2">
-                <input
-                  type="text"
-                  id="new-tag"
-                  value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
-                  className="mt-1 p-2 border rounded-md"
-                  placeholder="New Tag"
-                />
-                <button
-                  type="button"
-                  onClick={handleCreateNewTag}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                >
-                  Add Tag
-                </button>
-              </div>
+            <div className="flex items-center">
+              <input
+                type="text"
+                className="w-full p-2 border rounded-md"
+                value={newTag}
+                onChange={(e) => setNewTag(e.target.value)}
+                placeholder="Search or create a new tag"
+              />
+              <button
+                className="ml-2 bg-blue-500 text-white p-2 rounded-full"
+                type="button"
+                onClick={() => addTag(newTag)}
+              >
+                +
+              </button>
             </div>
+
+            {isLoading ? (
+              <p>Loading...</p>
+            ) : (
+              <ul className="mt-2">
+                {searchResults.map((tag, index) => (
+                  <li
+                    key={index}
+                    className="cursor-pointer text-blue-600 hover:text-blue-800"
+                    onClick={() => addTag(tag)}
+                  >
+                    {tag}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
+
 
           <div>
             <label className="block font-semibold text-sm text-gray-700">Templates</label>
 
             {/* Search for templates */}
-            <input
-              type="text"
-              placeholder="Search templates"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="mt-2 p-2 border rounded-md w-full"
-            />
+            <div className="flex space-x-2 items-center mt-4">
+              <select
+                value={searchField}
+                onChange={(e) => setSearchField(e.target.value as "title" | "tags" | "codeContent")}
+                className="p-2 border rounded-md"
+              >
+                <option value="title">Title</option>
+                <option value="tags">Tags</option>
+                <option value="codeContent">Code Content</option>
+              </select>
+              <input
+                type="text"
+                placeholder={`Search by ${searchField}`}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="p-2 border rounded-md w-full"
+              />
+            </div>
 
             <div className="space-y-2 mt-4">
               {templates.map((template) => (
@@ -247,10 +312,17 @@ const CreateBlogPost = () => {
                     onChange={() => handleTemplateSelection(template.id)}
                     className="mr-2"
                   />
-                  <label htmlFor={`template-${template.id}`} className="text-sm text-gray-600">{template.title}</label>
+                  <label htmlFor={`template-${template.id}`} className="text-sm text-gray-600">
+                    <span className="font-semibold">{template.title}</span> 
+                    {template.user.username && (
+                      <span className="ml-2 text-gray-500">(by {template.user.username})</span>
+                    )}
+                  </label>
                 </div>
               ))}
             </div>
+
+            
 
             {/* Pagination controls */}
             <div className="flex justify-between items-center mt-4">
