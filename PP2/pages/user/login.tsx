@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { useRouter } from "next/router";
 
 import { AuthContext } from "@/context/AuthContext";
+import Link from "next/link";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -31,7 +32,7 @@ const LoginPage = () => {
 		});
 
 		if (!response.ok) {
-			throw new Error("Invalid credentials or error logging in.");
+			throw new Error("Invalid username or password.");
 		}
 
 		const result = await response.json();
@@ -116,9 +117,9 @@ const LoginPage = () => {
 			<div className="mt-4 text-center">
 			<p className="text-sm text-gray-600">
 				Don't have an account?{" "}
-				<a href="/signup" className="text-blue-500 hover:underline">
-				Sign up
-				</a>
+				<Link href="/user/create" className="text-blue-500 hover:underline">
+					Sign up
+				</Link>
 			</p>
 			</div>
 		</div>
