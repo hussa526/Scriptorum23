@@ -1,7 +1,7 @@
 import prisma from "@/utils/prismaclient"
 
 import { authUser } from "@/utils/auth";
-import { validateTags } from "@/utils/template";
+import { findTags } from "@/utils/tags";
 import { validateTemplates } from "@/utils/template";
 
 export default async function handler(req, res) {
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     }
 
     const user = result.user;
-    const { title, content, tagsId = [], templatesId = [] } = req.body;
+    const { title, content, tags = [], templatesId = [] } = req.body;
 
     // validate inputs
     if (!title) {
@@ -33,11 +33,9 @@ export default async function handler(req, res) {
     }
 
     try {
-        // validate tags - tags must exist in order to link them to blogpost
-        const invalidTagIds = await validateTags(tagsId);
-        if (invalidTagIds.length > 0) {
-            return res.status(400).json({ error: `Invalid tag IDs: ${invalidTagIds.join(', ')}` });
-        }
+        // Create or find tags
+        const tagList = tags.length === 0 ? [] : tags.split(',').map(tag => tag.trim());
+        let tagsId = await findTags(tagList);
 
         // validate templates - templates must exist in order to link them to blogpost
         const invalidTemplateIds = await validateTemplates(templatesId);
