@@ -32,7 +32,7 @@ const CreateAccount = () => {
 
     const createAccount = async () => {
         if (!username || !password || !email || !firstName || !lastName || !avatar) {
-            console.log(firstName, lastName, username, password, email, avatar, phone);
+            //console.log(firstName, lastName, username, password, email, avatar, phone);
             alert("Please fill in all the fields.");
             return;
         }
@@ -42,7 +42,7 @@ const CreateAccount = () => {
         }
 
         const newUser = { firstName, lastName, username, password, email, avatar, phone };
-        console.log(firstName, lastName, username, password, email, avatar, phone);
+        //console.log(firstName, lastName, username, password, email, avatar, phone);
 
         try {
             const response = await fetch(`/api/auth/signup`, {
@@ -127,7 +127,7 @@ const CreateAccount = () => {
                                     className="bg-gray-200 hover:bg-gray-300 text-gray-600 p-2 rounded-full focus:outline-none"
                                     onClick={() => setShowPopup(!showPopup)}
                                 >
-                                    ⚙️
+                                    📷
                                 </button>
                                 {showPopup && (
                                     <div className="absolute top-full right-0 mt-2 bg-white p-4 rounded shadow-lg w-64 z-10">

@@ -33,7 +33,7 @@ const Aside = ({ blogPosts, forks }: AsideProps) => {
             {blogPosts.slice(0, visiblePosts).map((post) => (
             <li key={post.id} className="p-4 bg-white rounded-md shadow-md hover:bg-gray-50 transition duration-200">
                 {/* Link to individual blog post */}
-                <a href={`/blog/${post.id}`} className="block">
+                <a href={`/blogpost/${post.id}`} className="block">
                 {/* Blog Post Title */}
                 <h3 className="font-semibold text-lg">{post.title}</h3>
                 {/* Blog Post Excerpt */}

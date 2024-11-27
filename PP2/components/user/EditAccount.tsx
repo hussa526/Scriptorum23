@@ -106,10 +106,10 @@ const EditAccount = ({ saveEditUser }: EditAccountProps) => {
                             </div>
                             <div className="relative inline-block">
                                 <button
-                                    className="bg-gray-200 hover:bg-gray-300 text-gray-600 p-2 rounded-full focus:outline-none"
+                                    className="bg-gray-100 hover:bg-gray-300 text-gray-600 p-2 rounded-full focus:outline-none"
                                     onClick={() => setShowPopup(!showPopup)}
                                 >
-                                    ⚙️
+                                    📷
                                 </button>
                                 {showPopup && (
                                     <div className="absolute top-full right-0 mt-2 bg-white p-4 rounded shadow-lg w-64 z-10">
