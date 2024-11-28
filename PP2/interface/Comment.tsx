@@ -9,4 +9,5 @@ export interface Comment {
     replies: Comment[];
     isHidden: boolean;
     parent?: Comment | null;
+    parentId?: number | null;
 }

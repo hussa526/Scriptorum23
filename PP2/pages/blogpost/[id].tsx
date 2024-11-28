@@ -7,7 +7,7 @@ import { Vote } from '@/interface/Vote';
 import EditBlogpost from '@/components/blogpost/EditBlogpost';
 import Aside from '@/components/blogpost/TemplatesLeft';
 import CommentsSection from '@/components/blogpost/CommentsSection';
-import CodeTemplate from '@/components/template/CodeTemplate';
+import BlogpostContent from '@/components/blogpost/Blogpost';
 
 interface BlogpostUpdate {
     title: string;
@@ -155,7 +155,13 @@ const BlogpostPage: React.FC = () => {
             <main className="md:w-3/5 flex flex-col">
                 {/* Blogpost Content */}
                 <div className="flex-grow">
-                <EditBlogpost blogpost={blogpost} handleSaveBlogpost={handleSaveBlogpost} setIsEditingBlogpost={setIsEditingBlogpost} handleCancelEdit={handleCancelEdit}></EditBlogpost>
+                    {isEditingBlogpost? (
+                        <EditBlogpost blogpost={blogpost} handleSaveBlogpost={handleSaveBlogpost} setIsEditingBlogpost={setIsEditingBlogpost} handleCancelEdit={handleCancelEdit}></EditBlogpost>
+                    ): (
+                        <BlogpostContent title={blogpost.title} authorName={blogpost.user.username} content={blogpost.content} tags={blogpost.tags.map((tag) => tag.tag)} onEdit={handleEditCode}></BlogpostContent>
+                    )
+                    }
+                
                 {/* <h1>{blogpost.title}</h1>
                 <p>{blogpost.content}</p> */}
                 </div>
