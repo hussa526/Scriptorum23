@@ -24,6 +24,8 @@ export default async function handler(req, res) {
 				include: {
 					user: true,
 					votes: true,
+					parent: true,
+					replies: true,
 				},
 				},
 				reports: true,

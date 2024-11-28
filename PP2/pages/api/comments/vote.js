@@ -78,8 +78,6 @@ export default async function handler(req, res) {
         const votedComment = await prisma.comment.findUnique({
             where: { id: commentId },
             include: {
-                blogpostId: true,
-                parentId: true,
                 replies: true,
                 votes: true
             }

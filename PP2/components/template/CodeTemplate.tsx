@@ -51,6 +51,14 @@ const TemplateAside = ({ template, canEdit, isEditing, setIsEditing, editedCode,
                     },
                     body: JSON.stringify({ tempId: template.id }),
                 });
+
+                if (!res.ok) {
+                    if (res.status === 401) {
+                        alert("You need to be logged in to fork a template.");
+                        return;
+                    }
+                    throw new Error("Failed to fork");
+                }
                 const data = await res.json();
                 router.push({
                     pathname: `/template/${data.id}`,

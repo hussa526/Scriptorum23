@@ -61,7 +61,7 @@ export default async function handler(req, res) {
             }
         });
 
-        console.log(blogpost);
+        //console.log(blogpost);
         return res.status(201).json(blogpost);
     } catch (error) {
         console.log(error.message);

@@ -3,6 +3,8 @@ import prisma from "@/utils/prismaclient"
 import { authUser } from "@/utils/auth";
 import { validateTags } from "@/utils/template";
 import { validateTemplates } from "@/utils/template";
+import { findTags } from "@/utils/tags";
+import { deleteTags } from "@/utils/tags";
 
 export default async function handler(req, res) {
     if (req.method !== "PUT") {
@@ -62,16 +64,16 @@ export default async function handler(req, res) {
             return res.status(403).json({ error: "Unauthorized, must be blogpost's author to modify." })
         }
 
-        // validate tags that are added and tags that are removed
-        const invalidTagIds = validateTags(tagsAdded);
-        if (invalidTagIds.length > 0) {
-            return res.status(400).json({ error: `Invalid tag IDs: ${invalidTagIds.join(', ')}` });
-        }
+        // // validate tags that are added and tags that are removed
+        // const invalidTagIds = validateTags(tagsAdded);
+        // if (invalidTagIds.length > 0) {
+        //     return res.status(400).json({ error: `Invalid tag IDs: ${invalidTagIds.join(', ')}` });
+        // }
 
-        const invalidRemovedTagIds = await validateTags(tagsRemoved);
-        if (invalidRemovedTagIds.length > 0) {
-            return res.status(400).json({ error: `Invalid tag IDs: ${invalidRemovedTagIds.join(', ')}` });
-        }
+        // const invalidRemovedTagIds = await validateTags(tagsRemoved);
+        // if (invalidRemovedTagIds.length > 0) {
+        //     return res.status(400).json({ error: `Invalid tag IDs: ${invalidRemovedTagIds.join(', ')}` });
+        // }
 
         // validate templates - templates must exist in order to link them to blogpost
         const invalidTemplateIds = await validateTemplates(templatesAdded);
@@ -85,8 +87,8 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: `Invalid template IDs: ${invalidRemovedTemplateIds.join(', ')}` });
         }
 
-        const tagsToConnect = tagsAdded.map(tagId => ({ id: tagId }));
-        const tagsToDisconnect = tagsRemoved.map(tagId => ({ id: tagId }));
+        const tagsToConnect = await findTags(tagsAdded);
+        const tagsToDisconnect = await findTags(tagsRemoved);
 
         const templatesToConnect = templatesAdded.map(templateId => ({ id: templateId }));
         const templatesToDisconnect = templatesAdded.map(templateId => ({ id: templateId }));
@@ -108,11 +110,23 @@ export default async function handler(req, res) {
                 },
             },
             include: {
-                tags: true,
-                templates: true,
-                votes: true,
-                comments: true
-            }
+				templates: {
+				include: {
+					user: true, // Ensure this is properly structured and that the `Template` model has a `user` relation
+					tags: true,
+				},
+				},
+				user: true,
+				tags: true,
+				comments: {
+				include: {
+					user: true,
+					votes: true,
+				},
+				},
+				reports: true,
+				votes: true,
+			},
         });
 
         return res.status(200).json(updBlogpost);

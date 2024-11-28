@@ -1,71 +1,181 @@
-// Code generated using ChatGPT
-
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
-import { Blogpost } from '@/interface/Blogpost'; // Import Blogpost interface
-import { Template } from '@/interface/Template'; // Import Template interface
-import { Tag } from '@/interface/Tag'; // Import Tag interface
-import { User } from '@/interface/User';
-import TemplateComponent from '@/components/template/TemplateComponent'; // Import TemplateComponent
+import { Blogpost } from '@/interface/Blogpost';
+import { Template } from '@/interface/Template';
+import { Vote } from '@/interface/Vote';
 
-const BlogPostPage = () => {
-  const router = useRouter();
-  const { id } = router.query;
+import EditBlogpost from '@/components/blogpost/EditBlogpost';
+import Aside from '@/components/blogpost/TemplatesLeft';
+import CommentsSection from '@/components/blogpost/CommentsSection';
+import BlogpostContent from '@/components/blogpost/Blogpost';
 
-  const [blogPost, setBlogPost] = useState<Blogpost | null>(null); // State to store blog post data
-  const [error, setError] = useState<string | null>(null); // Error state
+interface BlogpostUpdate {
+    title: string;
+    tags: string[];
+    tagsDelete: string[];
+    content: string;
+    templates: Template[];
+    templatesDelete: Template[];
+}
 
-  useEffect(() => {
-    if (!id) return; // Do not fetch if `id` is undefined
+interface BlogPostPageProps {
+    post: {
+        id: number;
+        title: string;
+        content: string;
+        votes: Vote[];
+    };
+    comments: Comment[];
+}
 
-    const fetchBlogPost = async () => {
-      try {
-        const response = await fetch(`/api/blogpost/${id}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch blog post");
+const BlogpostPage: React.FC = () => {
+    const router = useRouter();
+    const { id } = router.query;
+
+    const [token, setToken] = useState<string | null>(null);
+    const [userId, setUserId] = useState<number | null>(null);
+    
+    const [blogpost, setBlogpost] = useState<Blogpost | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const [isEditing, setIsEditing] = useState(false);
+    const [isEditingBlogpost, setIsEditingBlogpost] = useState(false);
+    const [editedContent, setEditedContent] = useState('');
+    const [editedTitle, setEditedTitle] = useState('');
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const tokenFromStorage = localStorage.getItem("userToken");
+            const userIdFromStorage = Number(localStorage.getItem("userId"));
+            setToken(tokenFromStorage);
+            setUserId(userIdFromStorage);
         }
-        const data = await response.json();
-        setBlogPost(data);  // Set blog post data
-        console.log(data);
-      } catch (err) {
-        setError("Error fetching blog post.");
-        console.error(err);
-      }
+    }, []);
+
+    useEffect(() => {
+        if (id) {
+            const fetchBlogpost = async () => {
+                setLoading(true);
+                setError(null);
+                try {
+                    const res = await fetch(`/api/blogpost/${id}`);
+                    if (res.status === 404) {
+                        setError('Page does not exist.');
+                    } else {
+                        const data = await res.json();
+                        setBlogpost(data);
+                        setEditedContent(data.content);
+                        setEditedTitle(data.title);
+                    }
+                } catch (error) {
+                    console.error('Error fetching blogpost:', error);
+                    setError('Error fetching blogpost.');
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchBlogpost();
+        }
+    }, [id]);
+
+    const handleEditCode = () => {
+        setIsEditing(true);
     };
 
-    fetchBlogPost();
-  }, [id]);  // Re-fetch when `id` changes
 
-  if (error) return <div className="error">{error}</div>;  // Display error if exists
-  if (!blogPost) return <div>Loading...</div>;  // Show loading message while fetching data
+    const handleSaveBlogpost = async ({ title, tags, tagsDelete, content, templates, templatesDelete }: BlogpostUpdate) => {
+        if (!blogpost) {
+            console.error('Blogpost not found.');
+            return;
+        }
+    
+        const updatedBlogpost = {
+            blogpostId: blogpost.id, // Blogpost ID remains part of the original template
+            title: title,              // Updated title
+            tagsAdded: tags,               // Updated tags (array of strings)
+            tagsRemoved: tagsDelete,
+            content: content ,        // Updated content
+            templatesAdded: templates, // Updated templates
+            templatesRemoved: templatesDelete,
+        };
+    
+        try {
+            const res = await fetch(`/api/blogpost/update`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedBlogpost),
+            });
+    
+            if (!res.ok) {
+                throw new Error('Failed to update the Blogpost.');
+            }
+    
+            const data = await res.json();
+            console.log('Blogpost updated successfully:', data);
+    
+            setBlogpost(data);
+    
+            // Exit editing mode and update UI as necessary
+            setIsEditingBlogpost(false);
+        } catch (error) {
+            console.error('Error saving blogpost:', error);
+        }
+    };
 
-  return (
-    <div className="mt-16 max-w-3xl mx-auto p-6 bg-white shadow-md rounded-md">
-      <h1 className="text-2xl font-bold mb-4">{blogPost.title}</h1>
-      <p className="text-gray-400">Author: {blogPost.user.username}</p> 
-      <p className="text-gray-600">{blogPost.content}</p>
 
-      {/* Render Tags */}
-      <div className="mt-4">
-        <h3 className="font-semibold text-gray-700">Tags:</h3>
-        <ul className="list-disc pl-5">
-            {blogPost.tags.map((tag) => (
-                <li key={tag.id}>{tag.tag}</li>
-            ))}
-        </ul>
-      </div>
+    const handleCancelEdit = () => {
+        if (blogpost) {
+            setEditedContent(blogpost.content); // Reset codeEdit to template's original code
+            // TODO: fix
+        }
+        setIsEditing(false);
+    };
 
-      {/* Render Templates using TemplateComponent */}
-      <div className="mt-4">
-        <h3 className="font-semibold text-gray-700">Templates:</h3>
-        <div className="space-y-2">
-            {blogPost.templates.map((template) => (
-                <TemplateComponent key={template.id} template={template} />
-            ))}
-        </div>
-      </div>
-    </div>
-  );
+    if (loading) return <p className="text-center">Loading...</p>;
+    if (error) return <p className="text-center">{error}</p>;
+
+    if (!blogpost) return <p className="text-center">Blogpost not found.</p>;
+
+    const canEdit = () => {
+        return blogpost && blogpost.user && blogpost.user.id === userId;
+    };
+
+    return (
+        <div className="flex flex-col md:flex-row gap-6 p-6 mt-16">
+            {/* Sidebar: Templates */}
+            <aside className="md:w-1/5 border-b md:border-b-0 md:border-r border-gray-200 pb-6 md:pb-0 md:pr-6 space-y-4">
+                <Aside templates={blogpost.templates} />
+            </aside>
+
+            {/* Main Content Area: Blogpost */}
+            <main className="md:w-3/5 flex flex-col">
+                {/* Blogpost Content */}
+                <div className="flex-grow">
+                    {isEditingBlogpost? (
+                        <EditBlogpost blogpost={blogpost} handleSaveBlogpost={handleSaveBlogpost} setIsEditingBlogpost={setIsEditingBlogpost} handleCancelEdit={handleCancelEdit}></EditBlogpost>
+                    ): (
+                        <BlogpostContent title={blogpost.title} authorName={blogpost.user.username} content={blogpost.content} tags={blogpost.tags.map((tag) => tag.tag)} onEdit={handleEditCode}></BlogpostContent>
+                    )
+                    }
+                
+                {/* <h1>{blogpost.title}</h1>
+                <p>{blogpost.content}</p> */}
+                </div>
+
+                {/* Comments Section */}
+                <div className="mt-6">
+                <CommentsSection
+                    comments={blogpost.comments}
+                    blogpostId={blogpost.id}
+                />
+                </div>
+            </main>
+            </div>
+    );
 };
 
-export default BlogPostPage;
+export default BlogpostPage;

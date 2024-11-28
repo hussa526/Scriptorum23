@@ -51,6 +51,7 @@ export default async function handler(req, res) {
             select: {
                 replies: true,
                 votes: true,
+                user: true,
             }
         });
 
