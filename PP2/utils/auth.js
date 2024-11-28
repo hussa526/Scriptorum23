@@ -4,8 +4,8 @@ import jwt from "jsonwebtoken";
 import prisma from "./prismaclient.js";
 
 const BCRYPT_SALT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS);
-const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
+const JWT_SECRET = "NHJEFDNFD3"
+const JWT_EXPIRES_IN = "1 hr";
 
 export async function hashPassword(password) {
 	return await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
