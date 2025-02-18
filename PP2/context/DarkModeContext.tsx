@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 
 // Define the shape of the context
 interface ThemeContextType {
@@ -52,3 +52,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     </ThemeContext.Provider>
   );
 };
+
+// Custom hook for consuming the context
+export const useTheme = () => useContext(ThemeContext);
